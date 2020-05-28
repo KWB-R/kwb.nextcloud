@@ -1,25 +1,3 @@
-if (FALSE)
-{
-  path <- "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
-
-  # List files in folder
-  file_info <- kwb.nextcloud:::list_files(path = path)
-
-  # Check the result
-  View(file_info)
-
-  # Sum of file sizes = folder size?
-  sum(file_info$size) == file_info$bytes[1]
-
-  # Filter for xlsx files
-  paths <- grep("\\.xlsx", file_info$path, value = TRUE)
-
-  # Download xlsx files
-  downloaded_files <- kwb.nextcloud:::download_files(paths)
-
-  kwb.utils::hsOpenWindowsExplorer(dirname(downloaded_files[1]))
-}
-
 # download_files ---------------------------------------------------------------
 download_files <- function(
   paths,
