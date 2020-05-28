@@ -1,0 +1,12 @@
+^kwb\.nextcloud\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.travis\.yml$
+^.gitlab-ci\.yml$
+^appveyor\.yml$
+^codecov\.yml$
+^index\.md$
+^README\.md$

@@ -1,0 +1,15 @@
+authors:
+  Michael Rustler:
+    href: https://mrustl.de
+  Hauke Sonnenberg:
+    href: https://github.com/hsonne
+  Kompetenzzentrum Wasser Berlin gGmbH (KWB):
+    href: https://www.kompetenz-wasser.de
+    html: <img src='https://www.kompetenz-wasser.de/wp-content/uploads/2017/08/cropped-logo-kwb_klein-new.png'
+      height='24' />
+template:
+  params:
+    bootswatch: cerulean
+development:
+  mode: auto
+
