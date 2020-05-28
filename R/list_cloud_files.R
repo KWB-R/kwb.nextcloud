@@ -1,31 +1,61 @@
 if (FALSE)
 {
-  file_info <- kwb.budget:::list_cloud_folder(
-    folder = "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
-  )
+  path <- "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
 
+  # List files in folder
+  file_info <- kwb.nextcloud:::list_files(path = path)
+
+  # Check the result
   View(file_info)
 
+  # Sum of file sizes = folder size?
   sum(file_info$size) == file_info$bytes[1]
 
-  url <- get_nextcloud_urls("hsonne", fileid = file_info$id[1])$url_versions
+  # Filter for xlsx files
+  paths <- grep("\\.xlsx", file_info$path, value = TRUE)
 
-  xml_versions <- parsed_propfind(url)
+  # Download xlsx files
+  downloaded_files <- kwb.nextcloud:::download_files(paths)
 
+  kwb.utils::hsOpenWindowsExplorer(dirname(downloaded_files[1]))
 }
 
-# list_cloud_folder ------------------------------------------------------------
-list_cloud_folder <- function(
-  folder, user = nextcloud_user(), password = nextcloud_password()
+# download_files ---------------------------------------------------------------
+download_files <- function(
+  paths,
+  user = nextcloud_user(),
+  target_dir = kwb.utils::createDirectory(file.path(
+    "~/../Downloads", basename(tempfile(pattern = "nextcloud_"))
+  ))
 )
 {
-  if (FALSE) {
-    folder = "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
-    user = Sys.getenv("NEXTCLOUD_USER")
-    password = Sys.getenv("NEXTCLOUD_PASSWORD")
-  }
+  unlist(lapply(paths, function(path) {
 
-  urls <- get_nextcloud_urls(user, folder = folder)
+    kwb.utils::catAndRun(paste("Downloading", path), {
+
+      url <- get_nextcloud_urls(user, path = path)$url_files
+
+      response <- httr::GET(url, nextcloud_auth())
+
+      file <- file.path(target_dir, basename(path))
+
+      writeBin(httr::content(response), file)
+
+      file
+    })
+  }))
+}
+
+# list_files -------------------------------------------------------------------
+list_files <- function(
+  path, user = nextcloud_user(), password = nextcloud_password()
+)
+{
+  #path = "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
+  #user = kwb.nextcloud:::nextcloud_user()
+  #password = kwb.nextcloud:::nextcloud_password()
+
+  urls <- get_nextcloud_urls(user, path = path)
 
   content <- parsed_propfind(urls$url_files, user, password)
 
@@ -35,10 +65,12 @@ list_cloud_folder <- function(
 
   get_file_info <- function(x) {
     prop <- x$propstat$prop
+    href <- x$href[[1]]
+    offset <- nchar(urls$user_files) + 3L
     kwb.utils::noFactorDataFrame(
       id = gsub('"', '', prop$getetag[[1]]),
-      #path = x$href[[1]],
-      filename = basename(x$href[[1]]),
+      #href = href,
+      path = substr(href, offset, nchar(href)),
       #status = x$propstat$status[[1]],
       modified = prop$getlastmodified[[1]],
       bytes = to_numeric(prop$`quota-used-bytes`[[1]]),
@@ -46,6 +78,7 @@ list_cloud_folder <- function(
     )
   }
 
+  #x <- x_all$multistatus[[1]]
   do.call(rbind, lapply(unname(x_all$multistatus), get_file_info))
 }
 
@@ -53,9 +86,12 @@ list_cloud_folder <- function(
 get_nextcloud_urls <- function(user, ...)
 {
   dictionary <- list(
-    dav = "https://cloud.kompetenz-wasser.de/remote.php/dav",
-    url_files = "<dav>/files/<user>/<folder>",
-    url_versions = "<dav>/versions/<user>/<fileid>"
+    base = "https://cloud.kompetenz-wasser.de",
+    dav = "remote.php/dav",
+    user_files = "<dav>/files/<user>",
+    user_versions = "<dav>/versions/<user>",
+    url_files = "<base>/<user_files>/<path>",
+    url_versions = "<base>/<user_versions>/<fileid>"
   )
 
   kwb.utils::resolve(dictionary, user = user, ...)
