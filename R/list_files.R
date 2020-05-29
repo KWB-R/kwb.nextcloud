@@ -20,17 +20,18 @@ list_files <- function(
   path, user = nextcloud_user(), password = nextcloud_password(), method = 1L
 )
 {
-  stopifnot(method %in% 1:2)
-
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
-  #path = "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
+  #path = "proposals/bmbf_digital/Previous-projects/Budget"
   #user = nextcloud_user();password = nextcloud_password();method=1L
+
+  stopifnot(method %in% 1:2)
 
   urls <- get_nextcloud_urls(user, path = path)
 
   body <- request_body_list_files()
+  #cat(body)
 
-  content <- parsed_propfind(urls$url_files, user, password, body = body)
+  content <- parsed_propfind(url = urls$url_files, user, password, body = body)
 
   to_numeric <- function(xx) as.numeric(kwb.utils::defaultIfNULL(xx, "0"))
 
@@ -191,6 +192,13 @@ parsed_propfind <- function(
   response <- httr::VERB(
     "PROPFIND", url, nextcloud_auth(user, password), body = body
   )
+
+  if (httr::http_error(response)) {
+
+    xml <- httr::content(response)
+
+    stop(xml2::xml_text(xml2::xml_find_all(xml, "/d:error/s:message")))
+  }
 
   httr::content(response, as = "parsed")
 }
