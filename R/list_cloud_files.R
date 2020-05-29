@@ -148,7 +148,7 @@ xpaths_to_names <- function(xpaths)
 get_nextcloud_urls <- function(user, ...)
 {
   dictionary <- list(
-    base = "https://cloud.kompetenz-wasser.de",
+    base = nextcloud_url(),
     dav = "remote.php/dav",
     user_files = "<dav>/files/<user>",
     user_versions = "<dav>/versions/<user>",
@@ -189,4 +189,10 @@ nextcloud_user <- function()
 nextcloud_password <- function()
 {
   Sys.getenv("NEXTCLOUD_PASSWORD")
+}
+
+# nextcloud_url ----------------------------------------------------------------
+nextcloud_url <- function()
+{
+  Sys.getenv("NEXTCLOUD_URL")
 }
