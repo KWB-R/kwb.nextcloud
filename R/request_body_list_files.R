@@ -52,6 +52,18 @@ if (FALSE)
       kwb.nextcloud:::tag_xml("d:allprop")
     )
   ))
+
+  body <- kwb.nextcloud:::request_body(
+    kwb.nextcloud:::element_propfind(
+      kwb.nextcloud:::tag_xml("propname")
+    )
+  )
+
+  url <- kwb.nextcloud:::get_nextcloud_urls("hsonne", path = "projects/finale/urban-systems")$url_files
+
+  xml <- kwb.nextcloud:::parsed_propfind(url, body = body)
+
+  cat(as.character(xml))
 }
 
 # request_body_list_files ------------------------------------------------------
