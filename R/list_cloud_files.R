@@ -2,6 +2,12 @@ if (FALSE)
 {
   urls <- kwb.nextcloud:::get_nextcloud_urls("hsonne", path = "projects")
 
+  info_1 <- kwb.nextcloud:::list_files("departments", method = 1L)
+  info_2 <- kwb.nextcloud:::list_files("departments", method = 2L)
+
+  View(info_1)
+  View(info_2)
+
   inspect <- function(xx) writeLines(as.character(xx))
 
   inspect(x)
@@ -44,8 +50,8 @@ list_files <- function(
   stopifnot(method %in% 1:2)
 
   #path = "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
-  #user = kwb.nextcloud:::nextcloud_user()
-  #password = kwb.nextcloud:::nextcloud_password()
+  #user = nextcloud_user()
+  #password = nextcloud_password()
 
   urls <- get_nextcloud_urls(user, path = path)
 
@@ -71,34 +77,51 @@ list_files <- function(
 
   content <- parsed_propfind(urls$url_files, user, password, body = body)
 
+  to_numeric <- function(xx) as.numeric(kwb.utils::defaultIfNULL(xx, "0"))
+
   if (method == 1L) {
 
-    parse_xml_content_1(content, path_offset = nchar(urls$user_files) + 2L)
+    result <- parse_xml_content_1(content)
+
+    result$bytes <- to_numeric(result$bytes)
+    result$size <- to_numeric(result$size)
+    result$path <- substr(
+      x = result$href,
+      start = nchar(urls$user_files) + 3L,
+      stop = nchar(result$href)
+    )
+    result$etag <- gsub('"', '', result$etag)
+    result
 
   } else if (method == 2L) {
 
-    parse_xml_content_2(content)
+    result <- parse_xml_content_2(content)
+    View(result)
+
+    result
   }
+
 }
 
 # parse_xml_content_1 ----------------------------------------------------------
-parse_xml_content_1 <- function(content, path_offset = 0L)
+parse_xml_content_1 <- function(content)
 {
   x_all <- xml2::as_list(content)
 
-  to_numeric <- function(xx) as.numeric(kwb.utils::defaultIfNULL(xx, "0"))
-
   get_file_info <- function(x) {
+
+    #x <- x_all$multistatus[[1L]]
+
     prop <- x$propstat$prop
-    href <- x$href[[1]]
+    prop_1 <- function(name) kwb.utils::defaultIfNULL(prop[[name]][[1L]], "")
+
     kwb.utils::noFactorDataFrame(
-      id = gsub('"', '', prop$getetag[[1]]),
-      #href = href,
-      path = substr(href, path_offset + 1L, nchar(href)),
-      #status = x$propstat$status[[1]],
-      modified = prop$getlastmodified[[1]],
-      bytes = to_numeric(prop$`quota-used-bytes`[[1]]),
-      size = to_numeric(prop$getcontentlength[[1]])
+      etag = prop$getetag[[1L]],
+      href = x$href[[1L]],
+      status = x$propstat$status[[1L]],
+      modified = prop_1("getlastmodified"),
+      bytes = prop_1("quota-used-bytes"),
+      size = prop_1("getcontentlength")
     )
   }
 
@@ -110,10 +133,14 @@ parse_xml_content_1 <- function(content, path_offset = 0L)
 parse_xml_content_2 <- function(content)
 {
   extract_text <- function(xpath) {
-    xml2::xml_text(xml2::xml_find_all(content, paste0("//", xpath)))
+    text <- xml2::xml_text(xml2::xml_find_all(content, paste0("//", xpath)))
   }
 
-  result <- do.call(data.frame, lapply(xpaths(), extract_text))
+  result <- lapply(xpaths(), extract_text)
+
+  lengths(result)
+
+  result <- do.call(data.frame, result)
 
   stats::setNames(result, xpaths_to_names(xpaths()))
 }
@@ -189,4 +216,10 @@ nextcloud_user <- function()
 nextcloud_password <- function()
 {
   Sys.getenv("NEXTCLOUD_PASSWORD")
+}
+
+# nextcloud_url ----------------------------------------------------------------
+nextcloud_url <- function()
+{
+  Sys.getenv("NEXTCLOUD_URL")
 }
