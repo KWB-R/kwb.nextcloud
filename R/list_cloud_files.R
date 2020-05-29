@@ -104,7 +104,7 @@ list_files <- function(
     result
   }
 
-  structure(result, path = path)
+  structure(result, root = dirname(path))
 }
 
 # to_posix ---------------------------------------------------------------------
