@@ -10,6 +10,9 @@ authors:
 template:
   params:
     bootswatch: cerulean
+    docsearch:
+      api_key: 1fc9689ad420ce48dacbbb107ea9762c
+      index_name: kwb_nextcloud
 development:
   mode: auto
 
