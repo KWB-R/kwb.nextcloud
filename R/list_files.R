@@ -15,33 +15,6 @@ if (FALSE)
   inspect(y2)
 }
 
-# download_files ---------------------------------------------------------------
-download_files <- function(
-  paths,
-  user = nextcloud_user(),
-  target_dir = kwb.utils::createDirectory(file.path(
-    "~/../Downloads", basename(tempfile(pattern = "nextcloud_"))
-  ))
-)
-{
-  unlist(lapply(paths, function(path) {
-
-    kwb.utils::catAndRun(paste("Downloading", path), {
-
-      url <- get_nextcloud_urls(user, path = path)$url_files
-
-      response <- httr::GET(url, nextcloud_auth())
-
-      file <- file.path(target_dir, basename(path))
-
-      writeBin(httr::content(response), file)
-
-      file
-    })
-  }))
-}
-
-
 # list_files -------------------------------------------------------------------
 list_files <- function(
   path, user = nextcloud_user(), password = nextcloud_password(), method = 1L
@@ -55,23 +28,7 @@ list_files <- function(
 
   urls <- get_nextcloud_urls(user, path = path)
 
-  body <- '<d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">
-    <d:prop>
-    <d:getlastmodified />
-    <d:getetag />
-    <d:getcontenttype />
-    <d:resourcetype />
-    <oc:fileid />
-    <oc:permissions />
-    <oc:size />
-    <d:getcontentlength />
-    <nc:has-preview />
-    <oc:favorite />
-    <oc:comments-unread />
-    <oc:owner-display-name />
-    <oc:share-types />
-    </d:prop>
-    </d:propfind>'
+  body <- request_body_list_files()
 
   content <- parsed_propfind(urls$url_files, user, password, body = body)
 
@@ -244,22 +201,4 @@ nextcloud_auth <- function(
 )
 {
   httr::authenticate(user, password)
-}
-
-# nextcloud_user ---------------------------------------------------------------
-nextcloud_user <- function()
-{
-  Sys.getenv("NEXTCLOUD_USER")
-}
-
-# nextcloud_password -----------------------------------------------------------
-nextcloud_password <- function()
-{
-  Sys.getenv("NEXTCLOUD_PASSWORD")
-}
-
-# nextcloud_url ----------------------------------------------------------------
-nextcloud_url <- function()
-{
-  Sys.getenv("NEXTCLOUD_URL")
 }
