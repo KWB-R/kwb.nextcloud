@@ -59,20 +59,21 @@ request_body_list_files <- function()
 {
   request_body(
     element_propfind(
-      tag_xml("d:prop"),
-      tag_xml("d:getlastmodified"),
-      tag_xml("d:getetag"),
-      tag_xml("d:getcontenttype"),
-      tag_xml("d:resourcetype"),
-      tag_xml("oc:fileid"),
-      tag_xml("oc:permissions"),
-      tag_xml("oc:size"),
-      tag_xml("d:getcontentlength"),
-      tag_xml("nc:has-preview"),
-      tag_xml("oc:favorite"),
-      tag_xml("oc:comments-unread"),
-      tag_xml("oc:owner-display-name"),
-      tag_xml("oc:share-types")
+      element_prop(
+        tag_xml("d:getlastmodified"),
+        tag_xml("d:getetag"),
+        tag_xml("d:getcontenttype"),
+        tag_xml("d:resourcetype"),
+        tag_xml("oc:fileid"),
+        tag_xml("oc:permissions"),
+        tag_xml("oc:size"),
+        tag_xml("d:getcontentlength"),
+        tag_xml("nc:has-preview"),
+        tag_xml("oc:favorite"),
+        tag_xml("oc:comments-unread"),
+        tag_xml("oc:owner-display-name"),
+        tag_xml("oc:share-types")
+      )
     )
   )
 }
