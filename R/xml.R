@@ -12,12 +12,7 @@ attributes_propfind <- function(owncloud = TRUE, nextcloud = TRUE)
 # element_prop -----------------------------------------------------------------
 element_prop <- function(..., attributes = NULL, depth = 0L)
 {
-  element_xml(
-    "d:prop",
-    ...,
-    attributes = attributes,
-    depth = depth
-  )
+  element_xml("d:prop", ..., attributes = attributes, depth = depth)
 }
 
 # element_propfind -------------------------------------------------------------
@@ -36,7 +31,7 @@ element_xml <- function(x, ..., attributes = list(), depth = 0L)
   strings <- do.call(c, args = c(
     list(tag_xml(x, attributes, close = FALSE)),
     lapply(list(...), indent, 1L),
-    list(tag_xml(x, close = TRUE))
+    list(tag_xml(x, close = 2L))
   ))
 
   indent(strings, depth)
@@ -88,9 +83,10 @@ tag_xml <- function(x, attributes = NULL, close = TRUE, depth = 0L)
 
   string <- paste0(
     "<",
+    if (close == 2L) "/",
     x,
     if (length(attributes)) paste0(" ", key_value(.list = attributes)),
-    if (close) " /",
+    if (close == 1L) " /",
     ">"
   )
 
