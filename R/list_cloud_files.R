@@ -195,3 +195,4 @@ nextcloud_password <- function()
 nextcloud_url <- function()
 {
   Sys.getenv("NEXTCLOUD_URL")
+}
