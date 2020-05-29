@@ -28,23 +28,7 @@ list_files <- function(
 
   urls <- get_nextcloud_urls(user, path = path)
 
-  body <- '<d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">
-    <d:prop>
-    <d:getlastmodified />
-    <d:getetag />
-    <d:getcontenttype />
-    <d:resourcetype />
-    <oc:fileid />
-    <oc:permissions />
-    <oc:size />
-    <d:getcontentlength />
-    <nc:has-preview />
-    <oc:favorite />
-    <oc:comments-unread />
-    <oc:owner-display-name />
-    <oc:share-types />
-    </d:prop>
-    </d:propfind>'
+  body <- request_body_list_files()
 
   content <- parsed_propfind(urls$url_files, user, password, body = body)
 
