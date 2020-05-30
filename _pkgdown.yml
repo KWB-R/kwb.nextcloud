@@ -7,12 +7,14 @@ authors:
     href: https://www.kompetenz-wasser.de
     html: <img src='https://www.kompetenz-wasser.de/wp-content/uploads/2017/08/cropped-logo-kwb_klein-new.png'
       height='24' />
+
 template:
   params:
     bootswatch: cerulean
     docsearch:
       api_key: 1fc9689ad420ce48dacbbb107ea9762c
       index_name: kwb_nextcloud
+
 development:
   mode: auto
 

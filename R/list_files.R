@@ -1,18 +1,17 @@
 if (FALSE)
 {
   path <- "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
-  path <- "departments"
+  path <- "proposals/bmbf_digital/Previous-projects/Budget"
+  path <- "projects"
+  path <- "projects/finale"
+  path <- "/projects/finale///"
 
-  infos <- lapply(1:2, function(m) kwb.nextcloud:::list_files(path, method = m))
+  info <- kwb.nextcloud:::list_files(path)
+  View(info)
 
-  View(infos[[1]])
-  View(infos[[2]])
+  full_paths <- file.path(path, info$href)
 
-  inspect <- function(xx) writeLines(as.character(xx))
-
-  inspect(x)
-  inspect(y1)
-  inspect(y2)
+  kwb.nextcloud:::download_files(paths = full_paths)
 }
 
 # list_files -------------------------------------------------------------------
@@ -23,6 +22,8 @@ list_files <- function(
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
   #path = "proposals/bmbf_digital/Previous-projects/Budget"
   #user = nextcloud_user();password = nextcloud_password();method=1L
+
+  path <- remove_leading_slashes(path)
 
   stopifnot(method %in% 1:2)
 
@@ -39,19 +40,20 @@ list_files <- function(
 
     result <- parse_xml_content_1(content)
 
-    result$href <- substr(
-      x = result$href,
-      start = nchar(urls$user_files) + nchar(dirname(path)) + 4L,
-      stop = nchar(result$href)
-    )
+    result$href_orig <- result$href
 
-    result$lastmodified <- to_posix(x = result$lastmodified)
-    result$etag <- gsub('"', "", result$etag)
+    #start <- nchar(urls$user_files) + nchar(dirname(path)) + 4L
+    start <- min(nchar(result$href)) + 1L
+
+    result$href <- substr(x = result$href, start, stop = nchar(result$href))
+
+    result$getlastmodified <- to_posix(x = result$getlastmodified)
+    result$getetag <- gsub('"', "", result$getetag)
     result$fileid <- to_numeric(result$fileid)
     result$size <- to_numeric(result$size)
-    result$has_preview <- result$has_preview != "false"
+    result$has.preview <- result$has.preview != "false"
     result$favorite <- to_numeric(result$favorite)
-    result$comments_unread <- to_numeric(result$comments_unread)
+    result$comments.unread <- to_numeric(result$comments.unread)
 
     result
 
@@ -62,7 +64,7 @@ list_files <- function(
     result
   }
 
-  structure(result, root = dirname(path))
+  structure(result, root = path)
 }
 
 # to_posix ---------------------------------------------------------------------
@@ -82,49 +84,91 @@ parse_xml_content_1 <- function(content)
 {
   x_all <- xml2::as_list(content)
 
-  first_and_only <- function(x) {
-    stopifnot(is.list(x))
-    n <- length(x)
-    if (n == 0L) {
-      return("")
-    }
-    if (n == 1L) {
-      x <- x[[1L]]
-    }
-    if (length(x) == 0L) {
-      return("")
-    }
-    stopifnot(length(x) == 1L)
-    x
-  }
-
-  get_file_info <- function(x) {
-
-    #x <- responses[[1L]]
-
-    p <- x$propstat$prop
-
-    kwb.utils::noFactorDataFrame(
-      href = first_and_only(x$href),
-      status = first_and_only(x$propstat$status),
-      lastmodified = first_and_only(p$getlastmodified),
-      etag = first_and_only(p$getetag),
-      resourcetype = first_and_only(p$resourcetype),
-      fileid = first_and_only(p$fileid),
-      permissions = first_and_only(p$permissions),
-      size = first_and_only(p$size),
-      has_preview = first_and_only(p$`has-preview`),
-      favorite = first_and_only(p$favorite),
-      comments_unread = first_and_only(p$`comments-unread`),
-      owner_display_name = first_and_only(p$`owner-display-name`),
-      share_types = first_and_only(p$`share-types`)
-    )
-  }
-
-  #x <- x_all$multistatus[[1]]
   responses <- unname(x_all$multistatus)
 
-  do.call(rbind, lapply(responses, get_file_info))
+  kwb.utils::safeRowBindAll(lapply(responses, parse_response))
+}
+
+# parse_response ---------------------------------------------------------------
+parse_response <- function(response)
+{
+  #response <- responses[[1L]]
+  elements <- names(response)
+
+  stopifnot(all(elements %in% c("href", "propstat")))
+  stopifnot(sum(elements == "href") == 1L)
+
+  propstats <- lapply(response[elements == "propstat"], parse_propstat)
+
+  for (i in seq_along(propstats)) {
+    names_i <- names(propstats[[i]])
+    is_status <- names_i == "status"
+    names_i[is_status] <- paste0(names_i[is_status], ".", i)
+    names(propstats[[i]]) <- names_i
+  }
+
+  cbind(
+    kwb.utils::noFactorDataFrame(href = parse_href(href = response$href)),
+    do.call(cbind, c(unname(propstats), list(stringsAsFactors = FALSE))),
+    stringsAsFactors = FALSE
+  )
+}
+
+# parse_href -------------------------------------------------------------------
+parse_href <- function(href)
+{
+  stopifnot(is.list(href), length(href) == 1L)
+  result <- href[[1L]]
+  stopifnot(length(result) == 1L)
+  result
+}
+
+# parse_propstat ---------------------------------------------------------------
+parse_propstat <- function(propstat)
+{
+  #propstat <- propstats[[1]]
+
+  stopifnot(identical(sort(names(propstat)), c("prop", "status")))
+
+  cbind(
+    parse_prop(prop = propstat$prop),
+    status = parse_status(status = propstat$status),
+    stringsAsFactors = FALSE
+  )
+}
+
+# parse_status -----------------------------------------------------------------
+parse_status <- function(status)
+{
+  stopifnot(is.list(status), length(status) == 1L)
+  result <- status[[1]]
+  stopifnot(is.character(result), length(result) == 1L)
+  result
+}
+
+# parse_prop -------------------------------------------------------------------
+parse_prop <- function(prop)
+{
+  stopifnot(is.list(prop))
+  stopifnot(all(names(prop) %in% c(
+    "comments-unread",
+    "favorite",
+    "fileid",
+    "getcontentlength",
+    "getcontenttype",
+    "getetag",
+    "getlastmodified",
+    "has-preview",
+    "owner-display-name",
+    "permissions",
+    "resourcetype",
+    "share-types",
+    "size"
+  )))
+
+  do.call(kwb.utils::noFactorDataFrame, lapply(prop, function(x) {
+    if (length(x) == 0L) "" else as.character(x)
+  }))
 }
 
 # parse_xml_content_2 ----------------------------------------------------------
@@ -193,12 +237,7 @@ parsed_propfind <- function(
     "PROPFIND", url, nextcloud_auth(user, password), body = body
   )
 
-  if (httr::http_error(response)) {
-
-    xml <- httr::content(response)
-
-    stop(xml2::xml_text(xml2::xml_find_all(xml, "/d:error/s:message")))
-  }
+  stop_on_httr_error(response)
 
   httr::content(response, as = "parsed")
 }
