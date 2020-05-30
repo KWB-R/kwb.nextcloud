@@ -1,6 +1,7 @@
 if (FALSE)
 {
   path <- "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
+  path <- "proposals/bmbf_digital/Previous-projects/Budget"
   path <- "projects"
   path <- "projects/finale"
   path <- "/projects/finale///"
@@ -8,16 +9,9 @@ if (FALSE)
   info <- kwb.nextcloud:::list_files(path)
   View(info)
 
-  infos <- lapply(1, function(m) kwb.nextcloud:::list_files(path, method = m))
+  full_paths <- file.path(path, info$href)
 
-  View(infos[[1]])
-  View(infos[[2]])
-
-  inspect <- function(xx) writeLines(as.character(xx))
-
-  inspect(x)
-  inspect(y1)
-  inspect(y2)
+  kwb.nextcloud:::download_files(paths = full_paths)
 }
 
 # list_files -------------------------------------------------------------------
@@ -70,7 +64,7 @@ list_files <- function(
     result
   }
 
-  structure(result, root = dirname(path))
+  structure(result, root = path)
 }
 
 # to_posix ---------------------------------------------------------------------
@@ -243,12 +237,7 @@ parsed_propfind <- function(
     "PROPFIND", url, nextcloud_auth(user, password), body = body
   )
 
-  if (httr::http_error(response)) {
-
-    xml <- httr::content(response)
-
-    stop(xml2::xml_text(xml2::xml_find_all(xml, "/d:error/s:message")))
-  }
+  stop_on_httr_error(response)
 
   httr::content(response, as = "parsed")
 }
