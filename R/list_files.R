@@ -15,10 +15,10 @@ if (FALSE)
   kwb.nextcloud:::download_files(paths = full_paths)
 
   cloud_files <- kwb.utils::listToDepth(
-    "/", fun_list_contents = kwb.nextcloud:::list_files,
+    "", FUN = kwb.nextcloud:::list_files,
     recursive = TRUE
-    # , max_depth = 5
-    #, full_info = TRUE
+    , max_depth = 2
+    , full_info = TRUE
   )
 
   cloud_files_decoded <- unlist(lapply(cloud_files, function(x) {
