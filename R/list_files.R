@@ -7,25 +7,50 @@ if (FALSE)
   path <- "/projects/finale///"
 
   info <- kwb.nextcloud:::list_files(path)
+
   View(info)
 
   full_paths <- file.path(path, info$href)
 
   kwb.nextcloud:::download_files(paths = full_paths)
+
+  cloud_files <- kwb.utils::listToDepth(
+    "/", fun_list_contents = kwb.nextcloud:::list_files,
+    recursive = TRUE
+    # , max_depth = 5
+    #, full_info = TRUE
+  )
+
+  cloud_files_decoded <- unlist(lapply(cloud_files, function(x) {
+    iconv(utils::URLdecode(x), from = "UTF-8", to = "latin1")
+  }))
+
+  tail(cloud_files_decoded)
+
+  View(result)
+
+  info <- kwb.nextcloud:::list_files("projects/finale/FinAdminKomm")
 }
 
 # list_files -------------------------------------------------------------------
 list_files <- function(
-  path, user = nextcloud_user(), password = nextcloud_password(), method = 1L
+  path = character(), full_info = FALSE, user = nextcloud_user(),
+  password = nextcloud_password(), method = 1L, ...
 )
 {
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
   #path = "proposals/bmbf_digital/Previous-projects/Budget"
   #user = nextcloud_user();password = nextcloud_password();method=1L
 
+  if (length(path) == 0L) {
+    return(list_files("documents", full_info)[FALSE, ])
+  }
+
   path <- remove_leading_slashes(path)
 
   stopifnot(method %in% 1:2)
+
+  message("Listing files in ", path)
 
   urls <- get_nextcloud_urls(user, path = path)
 
@@ -40,31 +65,36 @@ list_files <- function(
 
     result <- parse_xml_content_1(content)
 
-    result$href_orig <- result$href
+    pull <- function(x) kwb.utils::selectColumns(result, x)
+
+    result$href_orig <- pull("href")
 
     #start <- nchar(urls$user_files) + nchar(dirname(path)) + 4L
-    start <- min(nchar(result$href)) + 1L
+    start <- min(nchar(pull("href"))) + 1L
 
-    result$href <- substr(x = result$href, start, stop = nchar(result$href))
+    result$href <- substr(x = pull("href"), start, stop = nchar(pull("href")))
 
-    result$getlastmodified <- to_posix(x = result$getlastmodified)
-    result$getetag <- gsub('"', "", result$getetag)
-    result$fileid <- to_numeric(result$fileid)
-    result$size <- to_numeric(result$size)
-    result$has.preview <- result$has.preview != "false"
-    result$favorite <- to_numeric(result$favorite)
-    result$comments.unread <- to_numeric(result$comments.unread)
+    result$getlastmodified <- to_posix(x = pull("getlastmodified"))
+    result$getetag <- gsub('"', "", pull("getetag"))
+    result$fileid <- to_numeric(pull("fileid"))
+    result$size <- to_numeric(pull("size"))
+    result$has.preview <- pull("has.preview") != "false"
+    result$favorite <- to_numeric(pull("favorite"))
+    result$comments.unread <- to_numeric(pull("comments.unread"))
 
-    result
+    # Provide columns as required by kwb.utils::listToDepth()
+    result$isdir <- pull("resourcetype") == "list()"
+    result$file <- pull("href")
 
   } else if (method == 2L) {
 
     result <- parse_xml_content_2(content)
-
-    result
   }
 
-  structure(result, root = path)
+  # Exclude the requested folder itself
+  columns <- if (full_info) names(result) else c("file", "isdir")
+
+  structure(result[nzchar(result$file), columns], root = path)
 }
 
 # to_posix ---------------------------------------------------------------------
