@@ -58,22 +58,6 @@ is_try_error <- function(x)
   inherits(x, "try-error")
 }
 
-# key_value --------------------------------------------------------------------
-key_value <- function(key, value, .list = NULL)
-{
-  if (! is.null(.list)) {
-
-    keys <- names(.list)
-    values <- unlist(.list)
-
-    return(do.call(paste, lapply(seq_along(.list), function(i) {
-      key_value(keys[i], values[i])
-    })))
-  }
-
-  paste0(key, "=\"", value, "\"")
-}
-
 # nextcloud_auth ---------------------------------------------------------------
 nextcloud_auth <- function(
   user = nextcloud_user(), password = nextcloud_password()
