@@ -1,9 +1,10 @@
 if (FALSE)
 {
   info <- kwb.nextcloud:::list_files(
-    path = "proposals/bmbf_digital/Previous-projects/Budget",
-    pattern = "(xlsx|csv)$",
+    path = "departments/urban-systems",
+    pattern = "xlsx$",
     recursive = TRUE,
+    max_depth = 1,
     full_info = TRUE
   )
 
@@ -14,6 +15,14 @@ if (FALSE)
 
   # Download files
   kwb.nextcloud:::download_files(paths)
+
+  # Get information on available versions. There seems to be only an entry if
+  # there is more than one version
+  version_info <- kwb.nextcloud:::get_version_info(info$fileid[! info$isdir])
+
+  View(version_info)
+
+  merge(info[, c("file", "fileid")], version_info, all.x = TRUE)
 }
 
 # list_files -------------------------------------------------------------------
@@ -88,8 +97,6 @@ list_cloud_files <- function(
   method = 1L
 )
 {
-  kwb.utils::printIf(TRUE, pattern)
-
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
   #path = "proposals/bmbf_digital/Previous-projects/Budget"
   #user = nextcloud_user();password = nextcloud_password();method=1L
@@ -160,7 +167,7 @@ list_cloud_files <- function(
 # to_posix ---------------------------------------------------------------------
 to_posix <- function(x)
 {
-  stopifnot(is.character(x), all(grepl("GMT$", x)))
+  stopifnot(is.character(x), all(is.na(x) | grepl("GMT$", x)))
 
   locale <- Sys.getlocale("LC_TIME")
   on.exit(Sys.setlocale("LC_TIME", locale))
@@ -182,7 +189,7 @@ parse_xml_content_1 <- function(content)
 # parse_response ---------------------------------------------------------------
 parse_response <- function(response)
 {
-  #response <- responses[[1L]]
+  #response <- responses[[2L]]
   elements <- names(response)
 
   stopifnot(all(elements %in% c("href", "propstat")))
@@ -216,7 +223,7 @@ parse_href <- function(href)
 # parse_propstat ---------------------------------------------------------------
 parse_propstat <- function(propstat)
 {
-  #propstat <- propstats[[1]]
+  #propstat <- propstats[[3]]
 
   stopifnot(identical(sort(names(propstat)), c("prop", "status")))
 
@@ -253,7 +260,9 @@ parse_prop <- function(prop)
     "permissions",
     "resourcetype",
     "share-types",
-    "size"
+    "size",
+    "quota-used-bytes",
+    "quota-available-bytes"
   )))
 
   do.call(kwb.utils::noFactorDataFrame, lapply(prop, function(x) {
@@ -304,15 +313,19 @@ xpaths_to_names <- function(xpaths)
 }
 
 # get_nextcloud_urls -----------------------------------------------------------
-get_nextcloud_urls <- function(user, ...)
+get_nextcloud_urls <- function(user = nextcloud_user(), ...)
 {
+  # Example "versions" URL (https://docs.nextcloud.com/server/17/
+  # developer_manual/client_apis/WebDAV/versions.html)
+  # https://cloud.example.com/remote.php/dav/versions/USER/versions/FILEID
+
   dictionary <- list(
     base = nextcloud_url(),
     dav = "remote.php/dav",
     user_files = "<dav>/files/<user>",
     user_versions = "<dav>/versions/<user>",
     url_files = "<base>/<user_files>/<path>",
-    url_versions = "<base>/<user_versions>/<fileid>"
+    url_versions = "<base>/<user_versions>/versions/<fileid>"
   )
 
   kwb.utils::resolve(dictionary, user = user, ...)
