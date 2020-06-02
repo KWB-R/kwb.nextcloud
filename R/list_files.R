@@ -3,33 +3,26 @@ if (FALSE)
   path <- "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
   path <- "proposals/bmbf_digital/Previous-projects/Budget"
   path <- "projects"
-  path <- "projects/finale"
-  path <- "/projects/finale///"
+  path <- "documents"
 
   info <- kwb.nextcloud:::list_files(path)
 
   View(info)
 
-  full_paths <- file.path(path, info$href)
-
-  kwb.nextcloud:::download_files(paths = full_paths)
-
-  cloud_files <- kwb.utils::listToDepth(
-    "", FUN = kwb.nextcloud:::list_files,
-    recursive = TRUE
-    , max_depth = 2
-    , full_info = TRUE
+  file_info <- kwb.utils::listToDepth(
+    path,
+    FUN = kwb.nextcloud:::list_files,
+    max_depth = NA,
+    full_info = FALSE
   )
 
-  cloud_files_decoded <- unlist(lapply(cloud_files, function(x) {
-    iconv(utils::URLdecode(x), from = "UTF-8", to = "latin1")
-  }))
+  View(file_info)
 
-  tail(cloud_files_decoded)
+  kwb.nextcloud:::download_files(paths = file.path(path, file_info$file))
 
-  View(result)
+  files_decoded <- unlist(lapply(file_info$file, kwb.nextcloud:::decode_url))
 
-  info <- kwb.nextcloud:::list_files("projects/finale/FinAdminKomm")
+  tail(files_decoded)
 }
 
 # list_files -------------------------------------------------------------------
