@@ -43,10 +43,6 @@ download_files <- function(
 # download_from_href -----------------------------------------------------------
 download_from_href <- function(href, target_file, auth = nextcloud_auth())
 {
-  #i <- 1L
-  #path <- paths[i]
-  #target_file <- target_files[i]
-
   # Expect the target directory to exist
   stopifnot(file.exists(dirname(target_file)))
 
@@ -55,8 +51,6 @@ download_from_href <- function(href, target_file, auth = nextcloud_auth())
     response <- nextcloud_request(href, "GET", auth)
 
     write_content_to_file(response, target_file)
-
-    target_file
   })
 }
 
@@ -75,4 +69,6 @@ write_content_to_file <- function(response, target_file)
       call. = FALSE
     )
   }
+
+  target_file
 }
