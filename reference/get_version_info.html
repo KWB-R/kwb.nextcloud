@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • kwb.nextcloud</title>
+<title>Get Version Information on Files of Given IDs — get_version_info • kwb.nextcloud</title>
 
 
 <!-- jquery -->
@@ -45,7 +45,8 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Get Version Information on Files of Given IDs — get_version_info" />
+<meta property="og:description" content="Get Version Information on Files of Given IDs" />
 
 
 
@@ -64,7 +65,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -132,48 +133,48 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Get Version Information on Files of Given IDs</h1>
+    <small class="dont-index">Source: <a href='https://github.com/KWB-R/kwb.nextcloud/blob/master/R/get_version_info.R'><code>R/get_version_info.R</code></a></small>
+    <div class="hidden name"><code>get_version_info.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Get Version Information on Files of Given IDs</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>get_version_info</span>(
+  <span class='no'>file_ids</span>,
+  <span class='kw'>user</span> <span class='kw'>=</span> <span class='fu'>nextcloud_user</span>(),
+  <span class='kw'>ignore</span> <span class='kw'>=</span> <span class='st'>"^(status|quota|getcontent|resource|href)"</span>
+)</pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="get_version_info.html">get_version_info()</a></code> </p>
-        </td>
-        <td><p>Get Version Information on Files of Given IDs</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="list_files.html">list_files()</a></code> </p>
-        </td>
-        <td><p>List Files on the Nextcloud Server</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>file_ids</th>
+      <td><p>vector of integer representing file ids (values returned in
+column <code>fileid</code>) by <code><a href='list_files.html'>list_files</a></code></p></td>
+    </tr>
+    <tr>
+      <th>user</th>
+      <td><p>nextcloud user</p></td>
+    </tr>
+    <tr>
+      <th>ignore</th>
+      <td><p>pattern matching columns to be excluded from the result. Set
+to <code>NULL</code> to see what columns are available.</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>data frame with one row per version. There seems to be only an entry
+if the corresponding file as more than one version.</p>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
