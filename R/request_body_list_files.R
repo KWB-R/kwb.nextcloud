@@ -59,9 +59,11 @@ if (FALSE)
     )
   )
 
-  url <- kwb.nextcloud:::get_nextcloud_urls("hsonne", path = "projects/finale/urban-systems")$url_files
+  href <- kwb.nextcloud:::path_to_file_href("projects/finale/urban-systems")
 
-  xml <- kwb.nextcloud:::parsed_propfind(url, body = body)
+  xml <- nextcloud_request(
+    href, verb = "PROPFIND", auth = auth, body = body, as = "parsed"
+  )
 
   cat(as.character(xml))
 }

@@ -1,28 +1,38 @@
 if (FALSE)
 {
   info <- kwb.nextcloud:::list_files(
-    path = "departments/urban-systems",
+    path = "departments",
     pattern = "xlsx$",
     recursive = TRUE,
-    max_depth = 1,
+    max_depth = 2,
     full_info = TRUE
   )
 
   View(info)
 
   # Paths to files to be downloaded
-  paths <- file.path(kwb.utils::getAttribute(info, "root"), info$file)
+  (paths <- file.path(kwb.utils::getAttribute(info, "root"), info$file))
+  info$href_orig
 
-  # Download files
-  kwb.nextcloud:::download_files(paths)
+  # Download files by href (important when downloading versions)
+  downloaded_files <- kwb.nextcloud:::download_files(info$href_orig)
 
-  # Get information on available versions. There seems to be only an entry if
-  # there is more than one version
+  # Download files by path
+  downloaded_files_2 <- kwb.nextcloud:::download_files(paths = paths)
+
+  kwb.utils::hsOpenWindowsExplorer(dirname(dirname(downloaded_files[1])))
+
+  # Get information on available versions. There seems to be only an entry for
+  # files that have more than one version
   version_info <- kwb.nextcloud:::get_version_info(info$fileid[! info$isdir])
 
   View(version_info)
 
-  merge(info[, c("file", "fileid")], version_info, all.x = TRUE)
+  merge(info[, c("file", "fileid")], version_info, all.x = TRUE, by = "fileid")
+
+  href <- version_info$href
+
+  kwb.nextcloud:::download_files(href)
 }
 
 # list_files -------------------------------------------------------------------
@@ -39,8 +49,8 @@ if (FALSE)
 #'   are returned as a vector of character.
 #' @param user user name, by default taken from the environment variable
 #'   "NEXTCLOUD_USER".
-#' @param password password for nextcloud user, by default taken from the
-#'   environment variable "NEXTCLOUD_PASSWORD".
+#' @param auth authentication header as provided by
+#'   \code{kwb.nextcloud:::nextcloud_auth}
 #' @param max_depth maximum recursion depth if \code{recursive = TRUE}. By
 #'   default \code{max_depth} is \code{NA} meaning that the function behaves
 #'   "fully recursive".
@@ -56,7 +66,7 @@ list_files <- function(
   recursive = FALSE,
   full_info = FALSE,
   user = nextcloud_user(),
-  password = nextcloud_password(),
+  auth = nextcloud_auth(),
   max_depth = NA,
   ...
 )
@@ -71,7 +81,7 @@ list_files <- function(
     FUN = list_cloud_files,
     pattern = pattern,
     user = user,
-    password = password
+    auth = auth
     , ...
   )
 
@@ -93,7 +103,7 @@ list_cloud_files <- function(
   full_info = FALSE,
   pattern = NULL,
   user = nextcloud_user(),
-  password = nextcloud_password(),
+  auth = nextcloud_auth(),
   method = 1L
 )
 {
@@ -102,6 +112,8 @@ list_cloud_files <- function(
   #user = nextcloud_user();password = nextcloud_password();method=1L
 
   if (length(path) == 0L) {
+
+    # Return an empty result data frame as a template
     return(list_cloud_files(path = "", full_info)[FALSE, ])
   }
 
@@ -111,12 +123,13 @@ list_cloud_files <- function(
 
   message("Listing files in ", path)
 
-  urls <- get_nextcloud_urls(user, path = path)
-
-  body <- request_body_list_files()
-  #cat(body)
-
-  content <- parsed_propfind(url = urls$url_files, user, password, body = body)
+  content <- nextcloud_request(
+    href = path_to_file_href(path, user),
+    verb = "PROPFIND",
+    auth = auth,
+    body = request_body_list_files(),
+    as = "parsed"
+  )
 
   to_numeric <- function(xx) as.numeric(kwb.utils::defaultIfNULL(xx, "0"))
 
@@ -128,7 +141,6 @@ list_cloud_files <- function(
 
     result$href_orig <- pull("href")
 
-    #start <- nchar(urls$user_files) + nchar(dirname(path)) + 4L
     start <- min(nchar(pull("href"))) + 1L
 
     result$href <- substr(x = pull("href"), start, stop = nchar(pull("href")))
@@ -329,20 +341,6 @@ get_nextcloud_urls <- function(user = nextcloud_user(), ...)
   )
 
   kwb.utils::resolve(dictionary, user = user, ...)
-}
-
-# parsed_propfind --------------------------------------------------------------
-parsed_propfind <- function(
-  url, user = nextcloud_user(), body = NULL, password = nextcloud_password()
-)
-{
-  response <- httr::VERB(
-    "PROPFIND", url, nextcloud_auth(user, password), body = body
-  )
-
-  stop_on_httr_error(response)
-
-  httr::content(response, as = "parsed")
 }
 
 # nextcloud_auth ---------------------------------------------------------------

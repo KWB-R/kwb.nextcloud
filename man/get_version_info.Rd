@@ -7,7 +7,7 @@
 get_version_info(
   file_ids,
   user = nextcloud_user(),
-  ignore = "^(status|quota|getcontent|resource|href)"
+  ignore = "^(status|quota|getcontent|resource)"
 )
 }
 \arguments{

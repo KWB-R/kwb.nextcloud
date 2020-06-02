@@ -14,7 +14,7 @@
 get_version_info <- function(
   file_ids,
   user = nextcloud_user(),
-  ignore = "^(status|quota|getcontent|resource|href)"
+  ignore = "^(status|quota|getcontent|resource)"
 )
 {
   #user <- "hsonne"
@@ -23,7 +23,7 @@ get_version_info <- function(
 
     kwb.utils::catAndRun(
       paste("Getting version info for fileid =", fileid),
-      get_one_version_info(user, fileid, ignore)
+      get_one_version_info(fileid, ignore = ignore, user = user)
     )
   })
 
@@ -31,26 +31,34 @@ get_version_info <- function(
 }
 
 # get_one_version_info ---------------------------------------------------------
-get_one_version_info <- function(user, fileid, ignore)
+get_one_version_info <- function(
+  fileid, ignore = NULL, user = nextcloud_user, auth = nextcloud_auth()
+)
 {
   # Shortcut
   pull <- kwb.utils::selectColumns
 
-  # API URL to ask for versions
-  url <- get_nextcloud_urls(user, fileid = fileid)$url_versions
+  href <- fileid_to_version_href(fileid, user)
 
   result <- try({
 
-    info <- parse_xml_content_1(parsed_propfind(url))
+    content <- nextcloud_request(
+      href, verb = "PROPFIND", auth = auth, body = NULL, as = "parsed"
+    )
+
+    info <- parse_xml_content_1(content)
 
     info <- info[pull(info, "resourcetype") != "list()", ]
 
-    if (! is.null(x <- info$getlastmodified)) {
+    if (! is.null(x <- pull(info, "getlastmodified"))) {
+
       info$getlastmodified <- to_posix(x)
+
       info <- kwb.utils::orderBy(info, "getlastmodified")
     }
 
     if (! is.null(ignore)) {
+
       info <- info[, ! grepl(ignore, names(info)), drop = FALSE]
     }
 

@@ -10,7 +10,7 @@ list_files(
   recursive = FALSE,
   full_info = FALSE,
   user = nextcloud_user(),
-  password = nextcloud_password(),
+  auth = nextcloud_auth(),
   max_depth = NA,
   ...
 )
@@ -31,8 +31,8 @@ are returned as a vector of character.}
 \item{user}{user name, by default taken from the environment variable
 "NEXTCLOUD_USER".}
 
-\item{password}{password for nextcloud user, by default taken from the
-environment variable "NEXTCLOUD_PASSWORD".}
+\item{auth}{authentication header as provided by
+\code{kwb.nextcloud:::nextcloud_auth}}
 
 \item{max_depth}{maximum recursion depth if \code{recursive = TRUE}. By
 default \code{max_depth} is \code{NA} meaning that the function behaves
