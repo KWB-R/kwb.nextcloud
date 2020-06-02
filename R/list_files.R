@@ -1,42 +1,101 @@
 if (FALSE)
 {
-  path <- "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
-  path <- "proposals/bmbf_digital/Previous-projects/Budget"
-  path <- "projects"
-  path <- "documents"
-
-  info <- kwb.nextcloud:::list_files(path)
+  info <- kwb.nextcloud:::list_files(
+    path = "proposals/bmbf_digital/Previous-projects/Budget",
+    pattern = "(xlsx|csv)$",
+    recursive = TRUE,
+    full_info = TRUE
+  )
 
   View(info)
 
-  file_info <- kwb.utils::listToDepth(
-    path,
-    FUN = kwb.nextcloud:::list_files,
-    max_depth = NA,
-    full_info = FALSE
-  )
+  # Paths to files to be downloaded
+  paths <- file.path(kwb.utils::getAttribute(info, "root"), info$file)
 
-  View(file_info)
-
-  kwb.nextcloud:::download_files(paths = file.path(path, file_info$file))
-
-  files_decoded <- unlist(lapply(file_info$file, kwb.nextcloud:::decode_url))
-
-  tail(files_decoded)
+  # Download files
+  kwb.nextcloud:::download_files(paths)
 }
 
 # list_files -------------------------------------------------------------------
+
+#' List Files on the Nextcloud Server
+#'
+#' @param path path to the nextcloud folder to be listed
+#' @param pattern an optional regular expression. Only file names which match
+#'   the regular expression will be returned.
+#' @param recursive if \code{TRUE} the contents of subfolders are listed as
+#'   well, up to the given \code{max_depth}.
+#' @param full_info if \code{TRUE} the full file information is returned as a
+#'   data frame. If \code{FALSE} (the default) only the (relative) file paths
+#'   are returned as a vector of character.
+#' @param user user name, by default taken from the environment variable
+#'   "NEXTCLOUD_USER".
+#' @param password password for nextcloud user, by default taken from the
+#'   environment variable "NEXTCLOUD_PASSWORD".
+#' @param max_depth maximum recursion depth if \code{recursive = TRUE}. By
+#'   default \code{max_depth} is \code{NA} meaning that the function behaves
+#'   "fully recursive".
+#' @param \dots further arguments passed to
+#'   \code{\link[kwb.utils]{listToDepth}}.
+#' @export
+#' @return vector of character or data frame, each with attribute "root" being
+#'   set to the value of \code{path}.
+#'
 list_files <- function(
-  path = character(), full_info = FALSE, user = nextcloud_user(),
-  password = nextcloud_password(), method = 1L, ...
+  path = "",
+  pattern = NULL,
+  recursive = FALSE,
+  full_info = FALSE,
+  user = nextcloud_user(),
+  password = nextcloud_password(),
+  max_depth = NA,
+  ...
 )
 {
+  #kwb.utils::assignPackageObjects("kwb.nextcloud")
+  #kwb.utils:::assignArgumentDefaults(list_files)
+
+  file_info <- kwb.utils::listToDepth(
+    path,
+    max_depth = ifelse(recursive, max_depth, 0L),
+    full_info = full_info,
+    FUN = list_cloud_files,
+    pattern = pattern,
+    user = user,
+    password = password
+    , ...
+  )
+
+  result <- if (full_info) {
+
+    kwb.utils::moveColumnsToFront(file_info, c("file", "isdir"))
+
+  } else {
+
+    kwb.utils::selectColumns(file_info, "file")
+  }
+
+  structure(result, root = path)
+}
+
+# list_cloud_files -------------------------------------------------------------
+list_cloud_files <- function(
+  path = character(),
+  full_info = FALSE,
+  pattern = NULL,
+  user = nextcloud_user(),
+  password = nextcloud_password(),
+  method = 1L
+)
+{
+  kwb.utils::printIf(TRUE, pattern)
+
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
   #path = "proposals/bmbf_digital/Previous-projects/Budget"
   #user = nextcloud_user();password = nextcloud_password();method=1L
 
   if (length(path) == 0L) {
-    return(list_files("documents", full_info)[FALSE, ])
+    return(list_cloud_files(path = "", full_info)[FALSE, ])
   }
 
   path <- remove_leading_slashes(path)
@@ -87,7 +146,15 @@ list_files <- function(
   # Exclude the requested folder itself
   columns <- if (full_info) names(result) else c("file", "isdir")
 
-  structure(result[nzchar(result$file), columns], root = path)
+  pull <- function(x) kwb.utils::selectColumns(result, x)
+
+  keep <- nzchar(pull("file"))
+
+  if (! is.null(pattern)) {
+    keep <- keep & (pull("isdir") | grepl(pattern, pull("file")))
+  }
+
+  structure(result[keep, columns], root = path)
 }
 
 # to_posix ---------------------------------------------------------------------
