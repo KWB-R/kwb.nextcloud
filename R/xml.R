@@ -8,7 +8,6 @@ attributes_propfind <- function(owncloud = TRUE, nextcloud = TRUE)
   )
 }
 
-
 # element_prop -----------------------------------------------------------------
 element_prop <- function(..., attributes = NULL, depth = 0L)
 {
@@ -41,7 +40,7 @@ element_xml <- function(x, ..., attributes = list(), depth = 0L)
 indent <- function(x, depth = 0L)
 {
   if (depth > 0L) {
-    paste0(space(depth), x)
+    paste0(kwb.utils::space(depth), x)
   } else {
     x
   }
@@ -67,12 +66,6 @@ key_value <- function(key, value, .list = NULL)
 request_body <- function(...)
 {
   paste(c(xml_declaration(), ...), collapse = "\n")
-}
-
-# space ------------------------------------------------------------------------
-space <- function(depth)
-{
-  paste(rep(" ", 2 * depth), collapse = "")
 }
 
 # tag_xml ----------------------------------------------------------------------
