@@ -59,7 +59,7 @@ download_files <- function(
 
 # download_from_href -----------------------------------------------------------
 
-#' @importFrom kwb.utils::catAndRun
+#' @importFrom kwb.utils catAndRun
 #' @keywords internal
 download_from_href <- function(href, target_file, auth = nextcloud_auth())
 {
