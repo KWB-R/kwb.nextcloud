@@ -1,4 +1,21 @@
 # download_files ---------------------------------------------------------------
+
+#' Download Files from Cloud
+#'
+#' @param hrefs href strings specifying the files to be downloaded. The href
+#'   strings are returned by \code{\link{list_files}}. Alternatively, the paths
+#'   to the files can be given in \code{paths}.
+#' @param target_dir path to local target directory
+#' @param paths Alternatively to givin the href strings, the paths to the files
+#'   can be given in this argument.
+#' @param user name of nextcloud user. Default: result of calling
+#'   \code{kwb.nextcloud:::nextcloud_user}
+#' @param auth authentication as returned by
+#'   \code{kwb.nextcloud:::nextcloud_user}
+#' @importFrom kwb.utils defaultIfNULL
+#' @importFrom kwb.file remove_common_root
+#' @export
+#'
 download_files <- function(
   hrefs = NULL,
   target_dir = create_download_dir("nextcloud_"),
