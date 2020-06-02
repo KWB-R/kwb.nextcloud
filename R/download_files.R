@@ -84,7 +84,7 @@ write_content_to_file <- function(response, target_file)
 
   result <- try(writeBin(content, target_file))
 
-  if (inherits(result, "try-error")) {
+  if (is_try_error(result)) {
 
     stop(
       "Could not write the response data with writeBin(). ",

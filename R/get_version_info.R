@@ -9,6 +9,7 @@
 #'   to \code{NULL} to see what columns are available.
 #' @return data frame with one row per version. There seems to be only an entry
 #'   if the corresponding file as more than one version.
+#' @importFrom kwb.utils catAndRun excludeNULL safeRowBindAll
 #' @export
 #'
 get_version_info <- function(
@@ -31,6 +32,9 @@ get_version_info <- function(
 }
 
 # get_one_version_info ---------------------------------------------------------
+
+#' @importFrom kwb.utils orderBy selectColumns
+#' @keywords internal
 get_one_version_info <- function(
   fileid, ignore = NULL, user = nextcloud_user, auth = nextcloud_auth()
 )
@@ -67,11 +71,12 @@ get_one_version_info <- function(
     cbind.data.frame(
       fileid = rep(fileid, n_versions),
       version = seq_len(n_versions),
-      info
+      info,
+      stringsAsFactors = FALSE
     )
   })
 
-  if (inherits(result, "try-error")) {
+  if (is_try_error(result)) {
     return(NULL)
   }
 

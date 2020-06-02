@@ -28,6 +28,12 @@ indent <- function(x, depth = 0L)
   }
 }
 
+# is_try_error -----------------------------------------------------------------
+is_try_error <- function(x)
+{
+  inherits(x, "try-error")
+}
+
 # key_value --------------------------------------------------------------------
 key_value <- function(key, value, .list = NULL)
 {
