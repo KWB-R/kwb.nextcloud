@@ -139,18 +139,6 @@ list_cloud_files <- function(
   structure(result[keep, columns], root = path)
 }
 
-# to_posix ---------------------------------------------------------------------
-to_posix <- function(x)
-{
-  stopifnot(is.character(x), all(is.na(x) | grepl("GMT$", x)))
-
-  locale <- Sys.getlocale("LC_TIME")
-  on.exit(Sys.setlocale("LC_TIME", locale))
-  Sys.setlocale("LC_TIME", "C")
-
-  as.POSIXct(x, format = "%a, %d %b %Y %H:%M:%S GMT", tz = "GMT")
-}
-
 # parse_xml_content_1 ----------------------------------------------------------
 parse_xml_content_1 <- function(content)
 {

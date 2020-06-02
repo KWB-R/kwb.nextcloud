@@ -86,6 +86,18 @@ remove_leading_slashes <- function(x)
   gsub("^/+", "", x)
 }
 
+# to_posix ---------------------------------------------------------------------
+to_posix <- function(x)
+{
+  stopifnot(is.character(x), all(is.na(x) | grepl("GMT$", x)))
+
+  locale <- Sys.getlocale("LC_TIME")
+  on.exit(Sys.setlocale("LC_TIME", locale))
+  Sys.setlocale("LC_TIME", "C")
+
+  as.POSIXct(x, format = "%a, %d %b %Y %H:%M:%S GMT", tz = "GMT")
+}
+
 # unique_dirnames --------------------------------------------------------------
 unique_dirnames <- function(x)
 {
