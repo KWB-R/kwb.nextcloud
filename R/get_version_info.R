@@ -50,7 +50,7 @@ get_one_version_info <- function(
       href, verb = "PROPFIND", auth = auth, body = NULL, as = "parsed"
     )
 
-    info <- parse_xml_content_1(content)
+    info <- parse_xml_content(content)
 
     info <- info[pull(info, "resourcetype") != "list()", ]
 

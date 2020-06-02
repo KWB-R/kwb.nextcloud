@@ -74,6 +74,14 @@ key_value <- function(key, value, .list = NULL)
   paste0(key, "=\"", value, "\"")
 }
 
+# nextcloud_auth ---------------------------------------------------------------
+nextcloud_auth <- function(
+  user = nextcloud_user(), password = nextcloud_password()
+)
+{
+  httr::authenticate(user, password)
+}
+
 # path_to_file_href ------------------------------------------------------------
 path_to_file_href <- function(path = "", user = nextcloud_user())
 {
