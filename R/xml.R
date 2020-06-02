@@ -36,32 +36,6 @@ element_xml <- function(x, ..., attributes = list(), depth = 0L)
   indent(strings, depth)
 }
 
-# indent -----------------------------------------------------------------------
-indent <- function(x, depth = 0L)
-{
-  if (depth > 0L) {
-    paste0(kwb.utils::space(depth), x)
-  } else {
-    x
-  }
-}
-
-# key_value --------------------------------------------------------------------
-key_value <- function(key, value, .list = NULL)
-{
-  if (! is.null(.list)) {
-
-    keys <- names(.list)
-    values <- unlist(.list)
-
-    return(do.call(paste, lapply(seq_along(.list), function(i) {
-      key_value(keys[i], values[i])
-    })))
-  }
-
-  paste0(key, "=\"", value, "\"")
-}
-
 # request_body -----------------------------------------------------------------
 request_body <- function(...)
 {
