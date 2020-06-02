@@ -1,4 +1,8 @@
 # nextcloud_request ------------------------------------------------------------
+
+#' @importFrom httr GET VERB http_error content
+#' @importFrom xml2 xml_text xml_find_all
+#' @keywords internal
 nextcloud_request <- function(
   href, verb = "GET", auth = nextcloud_auth(), body = NULL, as = "response"
 )
@@ -11,13 +15,11 @@ nextcloud_request <- function(
 
   response <- if (verb == "GET"){
 
-    httr::GET(url, auth)
+    httr::GET(url, auth = auth)
 
   } else if (verb == "PROPFIND") {
 
-    httr::VERB(
-      verb, url, auth, body = body
-    )
+    httr::VERB(verb, url, auth = auth, body = body)
   }
 
   if (httr::http_error(response)) {
