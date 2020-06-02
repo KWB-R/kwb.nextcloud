@@ -58,6 +58,9 @@ download_files <- function(
 }
 
 # download_from_href -----------------------------------------------------------
+
+#' @importFrom kwb.utils::catAndRun
+#' @keywords internal
 download_from_href <- function(href, target_file, auth = nextcloud_auth())
 {
   # Expect the target directory to exist
@@ -72,6 +75,9 @@ download_from_href <- function(href, target_file, auth = nextcloud_auth())
 }
 
 # write_content_to_file --------------------------------------------------------
+
+#' @importFrom httr content headers
+#' @keywords internal
 write_content_to_file <- function(response, target_file)
 {
   content <- httr::content(response, type = "application/octet-stream")
