@@ -60,7 +60,9 @@ get_property_names <- function(as_data_frame = FALSE)
     "nc:has-preview:2"
   )
 
-  result <- read.table(text = property_pairs, sep = ":", header = TRUE)
+  result <- read.table(
+    text = property_pairs, sep = ":", header = TRUE, stringsAsFactors = FALSE
+  )
 
   if (! as_data_frame) {
     return(kwb.utils::pasteColumns(result, names(result)[1:2], sep = ":"))

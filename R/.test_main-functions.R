@@ -6,8 +6,10 @@ if (FALSE)
     recursive = TRUE,
     max_depth = 2,
     full_info = TRUE
+    #, priority = NA
   ))
 
+  names(file_info)
   View(file_info)
 
   # Download files by href (important when downloading versions)

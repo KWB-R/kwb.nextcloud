@@ -70,7 +70,8 @@ list_cloud_files <- function(
   full_info = FALSE,
   pattern = NULL,
   user = nextcloud_user(),
-  auth = nextcloud_auth()
+  auth = nextcloud_auth(),
+  priority = 1L
 )
 {
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
@@ -115,11 +116,32 @@ list_cloud_files <- function(
   # Provide columns as required by kwb.utils::listToDepth()
   result$isdir <- pull("resourcetype") == "list()"
 
-  # Exclude the requested folder itself
-  columns <- if (full_info) names(result) else c("file", "isdir")
+  # Define the columns to keep
+  columns <- if (full_info) {
+
+    all_names <- names(result)
+
+    if (is.na(priority)) {
+
+      all_names
+
+    } else {
+
+      prop_info <- kwb.nextcloud:::get_property_names(as_data_frame = TRUE)
+
+      cols <- prop_info$name[prop_info$priority <= priority]
+
+      intersect(c("file", "isdir", cols, "href"), all_names)
+    }
+
+  } else {
+
+    c("file", "isdir")
+  }
 
   pull <- function(x) kwb.utils::selectColumns(result, x)
 
+  # Exclude the requested folder itself
   keep <- nzchar(pull("file"))
 
   if (! is.null(pattern)) {
