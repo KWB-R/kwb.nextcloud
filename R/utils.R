@@ -30,6 +30,15 @@ decode_url <- function(x, to = "latin1")
   iconv(utils::URLdecode(x), from = "UTF-8", to = to)
 }
 
+# exclude_directories ----------------------------------------------------------
+
+#' @importFrom kwb.utils selectColumns
+#' @keywords internal
+exclude_directories <- function(file_info)
+{
+  file_info[! kwb.utils::selectColumns(file_info, "isdir"), , drop = FALSE]
+}
+
 # fileid_to_version_href -------------------------------------------------------
 fileid_to_version_href <- function(fileid = "", user = nextcloud_user())
 {
