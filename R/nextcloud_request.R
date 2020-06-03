@@ -5,32 +5,38 @@
 #' @keywords internal
 nextcloud_request <- function(
   href, verb = "GET", auth = nextcloud_auth(), body = NULL, as = "response",
-  really = FALSE
+  really = FALSE, headers = list()
 )
 {
+  # Combine authentication and headers (if any)
+  config <- c(auth, if (length(headers)) do.call(httr::add_headers, headers))
+
   verb <- match.arg(verb, c("GET", "PROPFIND", "PUT", "DELETE"))
 
   as <- match.arg(as, c("response", "raw", "text", "parsed", "content"))
 
   url <- href_to_url(href)
 
-  response <- if (verb == "GET"){
+  response <- if (verb == "GET") {
 
-    httr::GET(url, config = auth)
+    httr::GET(url, config)
 
   } else if (verb == "PROPFIND") {
 
-    httr::VERB(verb, url, config = auth, body = body)
+    httr::VERB(verb, url, config, body = body)
 
   } else if (verb == "PUT") {
 
-    httr::PUT(url, config = auth, body = body)
+    httr::PUT(url, config, body = body)
 
   } else if (verb == "DELETE") {
 
     if (really) {
-      httr::DELETE(url, config = auth)
+
+      httr::DELETE(url, config)
+
     } else {
+
       message("I will not really delete ", url, "!")
       return()
     }
