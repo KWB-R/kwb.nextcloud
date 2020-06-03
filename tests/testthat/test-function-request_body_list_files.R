@@ -7,7 +7,10 @@
 
 test_that("request_body_list_files() works", {
 
-  kwb.nextcloud:::request_body_list_files()
+  result <- kwb.nextcloud:::request_body_list_files()
 
+  expect_is(result, "character")
+  expect_length(result, 1L)
+  expect_true(startsWith(result, "<?xml version"))
+  expect_true(endsWith(result, "/d:propfind>"))
 })
-

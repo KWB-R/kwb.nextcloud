@@ -7,7 +7,8 @@
 
 test_that("nextcloud_auth() works", {
 
-  kwb.nextcloud:::nextcloud_auth()
+  result <- kwb.nextcloud:::nextcloud_auth()
 
+  expect_is(result, "request")
+  expect_identical(result$options$httpauth, 1)
 })
-

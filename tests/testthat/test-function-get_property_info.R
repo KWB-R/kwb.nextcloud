@@ -7,10 +7,8 @@
 
 test_that("get_property_info() works", {
 
-  expect_error(
-    kwb.nextcloud:::get_property_info()
-    # Objekt 'get_property_info' nicht gefunden
-  )
+  result <- kwb.nextcloud:::get_property_info()
 
+  expect_is(result, "data.frame")
+  expect_identical(names(result), c("namespace", "name", "priority", "column"))
 })
-

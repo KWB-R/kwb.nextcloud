@@ -7,10 +7,7 @@
 
 test_that("dav_path() works", {
 
-  expect_error(
-    kwb.nextcloud:::dav_path()
-    # Objekt 'dav_path' nicht gefunden
-  )
+  expect_identical(kwb.nextcloud:::dav_path(), "/remote.php/dav")
 
 })
 
