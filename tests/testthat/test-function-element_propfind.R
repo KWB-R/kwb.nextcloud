@@ -7,7 +7,8 @@
 
 test_that("element_propfind() works", {
 
-  kwb.nextcloud:::element_propfind()
+  result <- kwb.nextcloud:::element_propfind()
 
+  expect_true(startsWith(result[1L], "<d:propfind"))
+  expect_identical(result[2L], "</d:propfind>")
 })
-

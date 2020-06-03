@@ -7,7 +7,8 @@
 
 test_that("attributes_propfind() works", {
 
-  kwb.nextcloud:::attributes_propfind()
+  result <- kwb.nextcloud:::attributes_propfind()
 
+  expect_is(result, "list")
 })
 
