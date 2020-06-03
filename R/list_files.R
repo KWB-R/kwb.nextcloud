@@ -19,7 +19,8 @@
 #'   "fully recursive".
 #' @param \dots further arguments passed to
 #'   \code{\link[kwb.utils]{listToDepth}}.
-#' @importFrom kwb.utils listToDepth moveColumnsToFront selectColumns
+#' @importFrom kwb.utils listToDepth moveColumnsToFront renameColumns
+#' @importFrom kwb.utils selectColumns toLookupList
 #' @export
 #' @return vector of character or data frame, each with attribute "root" being
 #'   set to the value of \code{path}.
@@ -51,12 +52,15 @@ list_files <- function(
 
   result <- if (full_info) {
 
-    kwb.utils::moveColumnsToFront(file_info, c("file", "isdir"))
+    result <- kwb.utils::moveColumnsToFront(file_info, c("file", "isdir"))
+
+    rename_properties(result)
 
   } else {
 
     kwb.utils::selectColumns(file_info, "file")
   }
+
 
   structure(result, root = path)
 }
@@ -127,7 +131,7 @@ list_cloud_files <- function(
 
     } else {
 
-      prop_info <- kwb.nextcloud:::get_property_names(as_data_frame = TRUE)
+      prop_info <- kwb.nextcloud:::get_property_info()
 
       cols <- prop_info$name[prop_info$priority <= priority]
 
@@ -231,7 +235,7 @@ parse_prop <- function(prop)
 {
   stopifnot(is.list(prop))
 
-  property_info <- get_property_names(as_data_frame = TRUE)
+  property_info <- get_property_info()
   prop_names <- names(prop)
   unexpected <- ! prop_names %in% sort(unique(property_info$name))
 

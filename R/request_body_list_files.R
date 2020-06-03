@@ -1,13 +1,15 @@
 # request_body_list_files ------------------------------------------------------
 request_body_list_files <- function()
 {
-  property_elements <- lapply(get_property_names(), kwb.nextcloud:::tag_xml)
+  property_strings <- get_property_info(as_data_frame = FALSE)
+
+  property_elements <- lapply(property_strings, kwb.nextcloud:::tag_xml)
 
   request_body(element_propfind(do.call(element_prop, property_elements)))
 }
 
-# get_property_names -----------------------------------------------------------
-get_property_names <- function(as_data_frame = FALSE)
+# get_property_info ------------------------------------------------------------
+get_property_info <- function(as_data_frame = TRUE)
 {
   # The following properties are supported (https://docs.nextcloud.com/server/
   # 15/developer_manual/client_apis/WebDAV/basic.html)
@@ -38,30 +40,30 @@ get_property_names <- function(as_data_frame = FALSE)
 
   # In the following, the properties are listed in alphabetical order within
   # each namespace
-  property_pairs <- c(
-    "namespace:name:priority",
-    "d:getcontentlength:2",
-    "d:getcontenttype:2",
-    "d:getetag:1",
-    "d:getlastmodified:1",
-    "d:resourcetype:2",
-    "oc:checksums:2",
-    "oc:comments-count:1",
-    "oc:comments-href:2",
-    "oc:comments-unread:2",
-    "oc:favorite:2",
-    "oc:fileid:1",
-    "oc:id:2",
-    "oc:owner-display-name:2",
-    "oc:owner-id:1",
-    "oc:permissions:1",
-    "oc:share-types:2",
-    "oc:size:1",
-    "nc:has-preview:2"
+  property_info <- c(
+    "namespace:name:priority:column",
+    "d:getcontentlength:2:contentlength",
+    "d:getcontenttype:2:contenttype",
+    "d:getetag:1:etag",
+    "d:getlastmodified:1:lastmodified",
+    "d:resourcetype:2:resourcetype",
+    "oc:checksums:2:checksum",
+    "oc:comments-count:1:commentscount",
+    "oc:comments-href:2:commentshref",
+    "oc:comments-unread:2:commentsunread",
+    "oc:favorite:2:favorite",
+    "oc:fileid:1:fileid",
+    "oc:id:2:id",
+    "oc:owner-display-name:2:ownername",
+    "oc:owner-id:1:ownerid",
+    "oc:permissions:1:permissions",
+    "oc:share-types:2:sharetypes",
+    "oc:size:1:size",
+    "nc:has-preview:2:haspreview"
   )
 
   result <- read.table(
-    text = property_pairs, sep = ":", header = TRUE, stringsAsFactors = FALSE
+    text = property_info, sep = ":", header = TRUE, stringsAsFactors = FALSE
   )
 
   if (! as_data_frame) {

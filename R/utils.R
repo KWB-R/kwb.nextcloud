@@ -78,6 +78,17 @@ remove_leading_slashes <- function(x)
   gsub("^/+", "", x)
 }
 
+# rename_properties ------------------------------------------------------------
+rename_properties <- function(result)
+{
+  prop_names <- get_property_info()[, c("name","column")]
+
+  kwb.utils::renameColumns(result, renamings = kwb.utils::toLookupList(
+    keys = gsub("-", ".", prop_names$name),
+    values = prop_names$column
+  ))
+}
+
 # to_posix ---------------------------------------------------------------------
 to_posix <- function(x)
 {
