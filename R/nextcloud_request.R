@@ -11,7 +11,7 @@ nextcloud_request <- function(
   # Combine authentication and headers (if any)
   config <- c(auth, if (length(headers)) do.call(httr::add_headers, headers))
 
-  verb <- match.arg(verb, c("GET", "PROPFIND", "PUT", "DELETE"))
+  verb <- match.arg(verb, c("GET", "PROPFIND", "PUT", "DELETE", "MKCOL"))
 
   as <- match.arg(as, c("response", "raw", "text", "parsed", "content"))
 
@@ -28,6 +28,10 @@ nextcloud_request <- function(
   } else if (verb == "PUT") {
 
     httr::PUT(url, config, body = body)
+
+  }  else if (verb == "MKCOL") {
+
+    httr::VERB(verb, url, config)
 
   } else if (verb == "DELETE") {
 
