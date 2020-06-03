@@ -85,7 +85,7 @@ list_cloud_files <- function(
 
   path <- remove_leading_slashes(path)
 
-  message("Listing files in ", path)
+  message("Listing ", path)
 
   content <- nextcloud_request(
     href = path_to_file_href(path, user),
