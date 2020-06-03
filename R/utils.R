@@ -30,6 +30,15 @@ decode_url <- function(x, to = "latin1")
   iconv(utils::URLdecode(x), from = "UTF-8", to = to)
 }
 
+# exclude_directories ----------------------------------------------------------
+
+#' @importFrom kwb.utils selectColumns
+#' @keywords internal
+exclude_directories <- function(file_info)
+{
+  file_info[! kwb.utils::selectColumns(file_info, "isdir"), , drop = FALSE]
+}
+
 # fileid_to_version_href -------------------------------------------------------
 fileid_to_version_href <- function(fileid = "", user = nextcloud_user())
 {
@@ -50,6 +59,30 @@ indent <- function(x, depth = 0L)
   } else {
     x
   }
+}
+
+# is_cloud_directory -----------------------------------------------------------
+is_cloud_directory <- function(
+  path, user = nextcloud_user(), auth = nextcloud_auth()
+)
+{
+  prop_info <- list_cloud_files(
+    path,
+    full_info = TRUE,
+    user = user,
+    auth = auth,
+    parent_only = TRUE
+  )
+
+  stopifnot(nrow(prop_info) == 1L)
+
+  kwb.utils::selectColumns(prop_info, "isdir")
+}
+
+# is_directory -----------------------------------------------------------------
+is_directory <- function(file)
+{
+  file.info(kwb.utils::safePath(file))[, "isdir"]
 }
 
 # is_try_error -----------------------------------------------------------------
