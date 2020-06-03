@@ -131,7 +131,7 @@ list_cloud_files <- function(
 
     } else {
 
-      prop_info <- kwb.nextcloud:::get_property_info()
+      prop_info <- get_property_info()
 
       cols <- prop_info$name[prop_info$priority <= priority]
 

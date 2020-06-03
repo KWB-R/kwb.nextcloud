@@ -3,12 +3,15 @@ request_body_list_files <- function()
 {
   property_strings <- get_property_info(as_data_frame = FALSE)
 
-  property_elements <- lapply(property_strings, kwb.nextcloud:::tag_xml)
+  property_elements <- lapply(property_strings, tag_xml)
 
   request_body(element_propfind(do.call(element_prop, property_elements)))
 }
 
 # get_property_info ------------------------------------------------------------
+
+#' @importFrom utils read.table
+#' @keywords internal
 get_property_info <- function(as_data_frame = TRUE)
 {
   # The following properties are supported (https://docs.nextcloud.com/server/
@@ -62,7 +65,7 @@ get_property_info <- function(as_data_frame = TRUE)
     "nc:has-preview:2:haspreview"
   )
 
-  result <- read.table(
+  result <- utils::read.table(
     text = property_info, sep = ":", header = TRUE, stringsAsFactors = FALSE
   )
 
