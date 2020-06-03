@@ -1,24 +1,73 @@
 # request_body_list_files ------------------------------------------------------
 request_body_list_files <- function()
 {
-  request_body(
-    element_propfind(
-      element_prop(
-        tag_xml("d:getlastmodified"),
-        tag_xml("d:getetag"),
-        tag_xml("d:getcontenttype"),
-        tag_xml("d:resourcetype"),
-        tag_xml("oc:fileid"),
-        tag_xml("oc:permissions"),
-        tag_xml("oc:size"),
-        tag_xml("d:getcontentlength"),
-        tag_xml("nc:has-preview"),
-        tag_xml("oc:favorite"),
-        tag_xml("oc:comments-unread"),
-        tag_xml("oc:owner-display-name"),
-        tag_xml("oc:share-types")
-      )
-    )
+  property_elements <- lapply(get_property_names(), kwb.nextcloud:::tag_xml)
+
+  request_body(element_propfind(do.call(element_prop, property_elements)))
+}
+
+# get_property_names -----------------------------------------------------------
+get_property_names <- function(as_data_frame = FALSE)
+{
+  # The following properties are supported (https://docs.nextcloud.com/server/
+  # 15/developer_manual/client_apis/WebDAV/basic.html)
+  #
+  # {DAV:}getlastmodified
+  # {DAV:}getetag
+  # {DAV:}getcontenttype
+  # {DAV:}resourcetype
+  # {DAV:}getcontentlength
+  #
+  # {http://owncloud.org/ns}id The fileid namespaced by the instance id,
+  #   globally unique
+  # {http://owncloud.org/ns}fileid The unique id for the file within the
+  #   instance
+  # {http://owncloud.org/ns}favorite
+  # {http://owncloud.org/ns}comments-href
+  # {http://owncloud.org/ns}comments-count
+  # {http://owncloud.org/ns}comments-unread
+  # {http://owncloud.org/ns}owner-id The user id of the owner of a shared file
+  # {http://owncloud.org/ns}owner-display-name The display name of the owner of
+  #   a shared file
+  # {http://owncloud.org/ns}share-types
+  # {http://owncloud.org/ns}checksums
+  # {http://owncloud.org/ns}size Unlike getcontentlength, this property also
+  #   works for folders reporting the size of everything in the folder.
+  #
+  # {http://nextcloud.org/ns}has-preview
+
+  # In the following, the properties are listed in alphabetical order within
+  # each namespace
+  property_pairs <- c(
+    "d:getcontentlength",
+    "d:getcontenttype",
+    "d:getetag",
+    "d:getlastmodified",
+    "d:resourcetype",
+    "oc:checksums",
+    "oc:comments-count",
+    "oc:comments-href",
+    "oc:comments-unread",
+    "oc:favorite",
+    "oc:fileid",
+    "oc:id",
+    "oc:owner-display-name",
+    "oc:owner-id",
+    "oc:permissions",
+    "oc:share-types",
+    "oc:size",
+    "nc:has-preview"
+  )
+
+  if (! as_data_frame) {
+    return(property_pairs)
+  }
+
+  parts <- strsplit(property_pairs, ":")
+
+  kwb.utils::noFactorDataFrame(
+    namespace = sapply(parts, "[", 1L),
+    name = sapply(parts, "[", 2L)
   )
 }
 
