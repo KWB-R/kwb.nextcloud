@@ -35,5 +35,6 @@ Remotes:
 Suggests: 
     covr,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr
