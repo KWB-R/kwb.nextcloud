@@ -203,28 +203,19 @@ parse_status <- function(status)
 
 # parse_prop -------------------------------------------------------------------
 
-#' @importFrom kwb.utils noFactorDataFrame
+#' @importFrom kwb.utils noFactorDataFrame stringList
 #' @keywords internal
 parse_prop <- function(prop)
 {
   stopifnot(is.list(prop))
-  stopifnot(all(names(prop) %in% c(
-    "comments-unread",
-    "favorite",
-    "fileid",
-    "getcontentlength",
-    "getcontenttype",
-    "getetag",
-    "getlastmodified",
-    "has-preview",
-    "owner-display-name",
-    "permissions",
-    "resourcetype",
-    "share-types",
-    "size",
-    "quota-used-bytes",
-    "quota-available-bytes"
-  )))
+
+  property_info <- get_property_names(as_data_frame = TRUE)
+  prop_names <- names(prop)
+  unexpected <- ! prop_names %in% sort(unique(property_info$name))
+
+  if (any(unexpected)) warning(
+    "Unexpected properties: ", kwb.utils::stringList(prop_names[unexpected])
+  )
 
   do.call(kwb.utils::noFactorDataFrame, lapply(prop, function(x) {
     if (length(x) == 0L) "" else as.character(x)
