@@ -39,36 +39,34 @@ get_property_names <- function(as_data_frame = FALSE)
   # In the following, the properties are listed in alphabetical order within
   # each namespace
   property_pairs <- c(
-    "d:getcontentlength",
-    "d:getcontenttype",
-    "d:getetag",
-    "d:getlastmodified",
-    "d:resourcetype",
-    "oc:checksums",
-    "oc:comments-count",
-    "oc:comments-href",
-    "oc:comments-unread",
-    "oc:favorite",
-    "oc:fileid",
-    "oc:id",
-    "oc:owner-display-name",
-    "oc:owner-id",
-    "oc:permissions",
-    "oc:share-types",
-    "oc:size",
-    "nc:has-preview"
+    "namespace:name:priority",
+    "d:getcontentlength:2",
+    "d:getcontenttype:2",
+    "d:getetag:1",
+    "d:getlastmodified:1",
+    "d:resourcetype:2",
+    "oc:checksums:2",
+    "oc:comments-count:1",
+    "oc:comments-href:2",
+    "oc:comments-unread:2",
+    "oc:favorite:2",
+    "oc:fileid:1",
+    "oc:id:2",
+    "oc:owner-display-name:2",
+    "oc:owner-id:1",
+    "oc:permissions:1",
+    "oc:share-types:2",
+    "oc:size:1",
+    "nc:has-preview:2"
   )
+
+  result <- read.table(text = property_pairs, sep = ":", header = TRUE)
 
   if (! as_data_frame) {
-    return(property_pairs)
+    return(kwb.utils::pasteColumns(result, names(result)[1:2], sep = ":"))
   }
 
-  parts <- strsplit(property_pairs, ":")
-
-  kwb.utils::noFactorDataFrame(
-    namespace = sapply(parts, "[", 1L),
-    name = sapply(parts, "[", 2L)
-  )
+  result
 }
 
 # request_body -----------------------------------------------------------------
