@@ -101,11 +101,8 @@ list_cloud_files <- function(
 
   pull <- function(x) kwb.utils::selectColumns(result, x)
 
-  result$href_orig <- pull("href")
-
-  start <- min(nchar(pull("href"))) + 1L
-
-  result$href <- substr(x = pull("href"), start, stop = nchar(pull("href")))
+  href <- pull("href")
+  result$file <- substring(href, min(nchar(href)) + 1L)
 
   result$getlastmodified <- to_posix(x = pull("getlastmodified"))
   result$getetag <- gsub('"', "", pull("getetag"))
@@ -117,7 +114,6 @@ list_cloud_files <- function(
 
   # Provide columns as required by kwb.utils::listToDepth()
   result$isdir <- pull("resourcetype") == "list()"
-  result$file <- pull("href")
 
   # Exclude the requested folder itself
   columns <- if (full_info) names(result) else c("file", "isdir")
