@@ -15,11 +15,11 @@ nextcloud_request <- function(
 
   response <- if (verb == "GET"){
 
-    httr::GET(url, auth = auth)
+    httr::GET(url, config = auth)
 
   } else if (verb == "PROPFIND") {
 
-    httr::VERB(verb, url, auth = auth, body = body)
+    httr::VERB(verb, url, config = auth, body = body)
   }
 
   if (httr::http_error(response)) {
