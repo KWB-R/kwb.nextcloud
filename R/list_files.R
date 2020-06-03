@@ -75,7 +75,8 @@ list_cloud_files <- function(
   pattern = NULL,
   user = nextcloud_user(),
   auth = nextcloud_auth(),
-  priority = 1L
+  priority = 1L,
+  parent_only = FALSE # TRUE -> return only the properties of the parent folder
 )
 {
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
@@ -97,7 +98,8 @@ list_cloud_files <- function(
     verb = "PROPFIND",
     auth = auth,
     body = request_body_list_files(),
-    as = "parsed"
+    as = "parsed",
+    headers = list(Depth = ifelse(parent_only, 0L, 1L))
   )
 
   to_numeric <- function(xx) as.numeric(kwb.utils::defaultIfNULL(xx, "0"))
@@ -131,7 +133,7 @@ list_cloud_files <- function(
 
     } else {
 
-      prop_info <- kwb.nextcloud:::get_property_info()
+      prop_info <- get_property_info()
 
       cols <- prop_info$name[prop_info$priority <= priority]
 
@@ -146,7 +148,14 @@ list_cloud_files <- function(
   pull <- function(x) kwb.utils::selectColumns(result, x)
 
   # Exclude the requested folder itself
-  keep <- nzchar(pull("file"))
+  keep <- if (parent_only) {
+
+    TRUE
+
+  } else {
+
+    nzchar(pull("file"))
+  }
 
   if (! is.null(pattern)) {
     keep <- keep & (pull("isdir") | grepl(pattern, pull("file")))

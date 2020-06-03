@@ -38,6 +38,11 @@ download_files <- function(
 
   paths_decoded <- unlist(lapply(paths, decode_url))
 
+  if (length(paths_decoded) == 0L) {
+    message("Nothing to download.")
+    return()
+  }
+
   # Keep only the necessary tree structure
   target_paths <- kwb.file::remove_common_root(paths_decoded)
 
