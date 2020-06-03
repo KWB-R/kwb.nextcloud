@@ -28,7 +28,9 @@ get_version_info <- function(
     )
   })
 
-  kwb.utils::safeRowBindAll(kwb.utils::excludeNULL(results, dbg = FALSE))
+  rename_properties(kwb.utils::safeRowBindAll(
+    kwb.utils::excludeNULL(results, dbg = FALSE)
+  ))
 }
 
 # get_one_version_info ---------------------------------------------------------

@@ -19,7 +19,8 @@
 #'   "fully recursive".
 #' @param \dots further arguments passed to
 #'   \code{\link[kwb.utils]{listToDepth}}.
-#' @importFrom kwb.utils listToDepth moveColumnsToFront selectColumns
+#' @importFrom kwb.utils listToDepth moveColumnsToFront renameColumns
+#' @importFrom kwb.utils selectColumns toLookupList
 #' @export
 #' @return vector of character or data frame, each with attribute "root" being
 #'   set to the value of \code{path}.
@@ -51,12 +52,15 @@ list_files <- function(
 
   result <- if (full_info) {
 
-    kwb.utils::moveColumnsToFront(file_info, c("file", "isdir"))
+    result <- kwb.utils::moveColumnsToFront(file_info, c("file", "isdir"))
+
+    rename_properties(result)
 
   } else {
 
     kwb.utils::selectColumns(file_info, "file")
   }
+
 
   structure(result, root = path)
 }
@@ -70,7 +74,8 @@ list_cloud_files <- function(
   full_info = FALSE,
   pattern = NULL,
   user = nextcloud_user(),
-  auth = nextcloud_auth()
+  auth = nextcloud_auth(),
+  priority = 1L
 )
 {
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
@@ -115,11 +120,32 @@ list_cloud_files <- function(
   # Provide columns as required by kwb.utils::listToDepth()
   result$isdir <- pull("resourcetype") == "list()"
 
-  # Exclude the requested folder itself
-  columns <- if (full_info) names(result) else c("file", "isdir")
+  # Define the columns to keep
+  columns <- if (full_info) {
+
+    all_names <- names(result)
+
+    if (is.na(priority)) {
+
+      all_names
+
+    } else {
+
+      prop_info <- kwb.nextcloud:::get_property_info()
+
+      cols <- prop_info$name[prop_info$priority <= priority]
+
+      intersect(c("file", "isdir", cols, "href"), all_names)
+    }
+
+  } else {
+
+    c("file", "isdir")
+  }
 
   pull <- function(x) kwb.utils::selectColumns(result, x)
 
+  # Exclude the requested folder itself
   keep <- nzchar(pull("file"))
 
   if (! is.null(pattern)) {
@@ -203,28 +229,19 @@ parse_status <- function(status)
 
 # parse_prop -------------------------------------------------------------------
 
-#' @importFrom kwb.utils noFactorDataFrame
+#' @importFrom kwb.utils noFactorDataFrame stringList
 #' @keywords internal
 parse_prop <- function(prop)
 {
   stopifnot(is.list(prop))
-  stopifnot(all(names(prop) %in% c(
-    "comments-unread",
-    "favorite",
-    "fileid",
-    "getcontentlength",
-    "getcontenttype",
-    "getetag",
-    "getlastmodified",
-    "has-preview",
-    "owner-display-name",
-    "permissions",
-    "resourcetype",
-    "share-types",
-    "size",
-    "quota-used-bytes",
-    "quota-available-bytes"
-  )))
+
+  property_info <- get_property_info()
+  prop_names <- names(prop)
+  unexpected <- ! prop_names %in% sort(unique(property_info$name))
+
+  if (any(unexpected)) warning(
+    "Unexpected properties: ", kwb.utils::stringList(prop_names[unexpected])
+  )
 
   do.call(kwb.utils::noFactorDataFrame, lapply(prop, function(x) {
     if (length(x) == 0L) "" else as.character(x)
