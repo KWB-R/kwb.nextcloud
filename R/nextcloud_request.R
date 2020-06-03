@@ -7,7 +7,7 @@ nextcloud_request <- function(
   href, verb = "GET", auth = nextcloud_auth(), body = NULL, as = "response"
 )
 {
-  verb <- match.arg(verb, c("GET", "PROPFIND"))
+  verb <- match.arg(verb, c("GET", "PROPFIND", "MKCOL"))
 
   as <- match.arg(as, c("response", "raw", "text", "parsed", "content"))
 
@@ -20,6 +20,10 @@ nextcloud_request <- function(
   } else if (verb == "PROPFIND") {
 
     httr::VERB(verb, url, config = auth, body = body)
+
+  } else if (verb == "MKCOL") {
+
+    httr::VERB(verb, url, config = auth)
   }
 
   if (httr::http_error(response)) {
