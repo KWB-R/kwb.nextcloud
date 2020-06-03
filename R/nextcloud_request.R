@@ -4,10 +4,11 @@
 #' @importFrom xml2 xml_text xml_find_all
 #' @keywords internal
 nextcloud_request <- function(
-  href, verb = "GET", auth = nextcloud_auth(), body = NULL, as = "response"
+  href, verb = "GET", auth = nextcloud_auth(), body = NULL, as = "response",
+  really = FALSE
 )
 {
-  verb <- match.arg(verb, c("GET", "PROPFIND"))
+  verb <- match.arg(verb, c("GET", "PROPFIND", "PUT", "DELETE"))
 
   as <- match.arg(as, c("response", "raw", "text", "parsed", "content"))
 
@@ -20,6 +21,19 @@ nextcloud_request <- function(
   } else if (verb == "PROPFIND") {
 
     httr::VERB(verb, url, config = auth, body = body)
+
+  } else if (verb == "PUT") {
+
+    httr::PUT(url, config = auth, body = body)
+
+  } else if (verb == "DELETE") {
+
+    if (really) {
+      httr::DELETE(url, config = auth)
+    } else {
+      message("I will not really delete ", url, "!")
+      return()
+    }
   }
 
   if (httr::http_error(response)) {
