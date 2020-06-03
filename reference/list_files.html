@@ -150,7 +150,7 @@
   <span class='kw'>recursive</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>full_info</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>user</span> <span class='kw'>=</span> <span class='fu'>nextcloud_user</span>(),
-  <span class='kw'>password</span> <span class='kw'>=</span> <span class='fu'>nextcloud_password</span>(),
+  <span class='kw'>auth</span> <span class='kw'>=</span> <span class='fu'>nextcloud_auth</span>(),
   <span class='kw'>max_depth</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='no'>...</span>
 )</pre>
@@ -184,9 +184,9 @@ are returned as a vector of character.</p></td>
 "NEXTCLOUD_USER".</p></td>
     </tr>
     <tr>
-      <th>password</th>
-      <td><p>password for nextcloud user, by default taken from the
-environment variable "NEXTCLOUD_PASSWORD".</p></td>
+      <th>auth</th>
+      <td><p>authentication header as provided by
+<code>kwb.nextcloud:::nextcloud_auth</code></p></td>
     </tr>
     <tr>
       <th>max_depth</th>
