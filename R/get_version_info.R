@@ -28,9 +28,14 @@ get_version_info <- function(
     )
   })
 
-  rename_properties(kwb.utils::safeRowBindAll(
-    kwb.utils::excludeNULL(results, dbg = FALSE)
-  ))
+  results <- kwb.utils::excludeNULL(results, dbg = FALSE)
+
+  if (length(results) == 0L) {
+    message("No versions available for given file IDs")
+    return()
+  }
+
+  rename_properties(kwb.utils::safeRowBindAll(results))
 }
 
 # get_one_version_info ---------------------------------------------------------
