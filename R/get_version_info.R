@@ -38,7 +38,7 @@ get_version_info <- function(
 #' @importFrom kwb.utils orderBy selectColumns
 #' @keywords internal
 get_one_version_info <- function(
-  fileid, ignore = NULL, user = nextcloud_user, auth = nextcloud_auth()
+  fileid, ignore = NULL, user = nextcloud_user(), auth = nextcloud_auth()
 )
 {
   # Shortcut
@@ -56,7 +56,7 @@ get_one_version_info <- function(
 
     info <- info[pull(info, "resourcetype") != "list()", ]
 
-    if (! is.null(x <- pull(info, "getlastmodified"))) {
+    if (! is.null(x <- info$getlastmodified)) {
 
       info$getlastmodified <- to_posix(x)
 
