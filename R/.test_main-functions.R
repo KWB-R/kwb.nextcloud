@@ -5,9 +5,11 @@ if (FALSE)
     pattern = "xlsx$",
     recursive = TRUE,
     max_depth = 2,
-    full_info = TRUE
+    full_info = TRUE,
+    priority = 1L # only main columns, 2 = more columns, 3 = all columns
   ))
 
+  names(file_info)
   View(file_info)
 
   # Download files by href (important when downloading versions)

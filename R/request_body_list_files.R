@@ -1,25 +1,76 @@
 # request_body_list_files ------------------------------------------------------
 request_body_list_files <- function()
 {
-  request_body(
-    element_propfind(
-      element_prop(
-        tag_xml("d:getlastmodified"),
-        tag_xml("d:getetag"),
-        tag_xml("d:getcontenttype"),
-        tag_xml("d:resourcetype"),
-        tag_xml("oc:fileid"),
-        tag_xml("oc:permissions"),
-        tag_xml("oc:size"),
-        tag_xml("d:getcontentlength"),
-        tag_xml("nc:has-preview"),
-        tag_xml("oc:favorite"),
-        tag_xml("oc:comments-unread"),
-        tag_xml("oc:owner-display-name"),
-        tag_xml("oc:share-types")
-      )
-    )
+  property_strings <- get_property_info(as_data_frame = FALSE)
+
+  property_elements <- lapply(property_strings, kwb.nextcloud:::tag_xml)
+
+  request_body(element_propfind(do.call(element_prop, property_elements)))
+}
+
+# get_property_info ------------------------------------------------------------
+get_property_info <- function(as_data_frame = TRUE)
+{
+  # The following properties are supported (https://docs.nextcloud.com/server/
+  # 15/developer_manual/client_apis/WebDAV/basic.html)
+  #
+  # {DAV:}getlastmodified
+  # {DAV:}getetag
+  # {DAV:}getcontenttype
+  # {DAV:}resourcetype
+  # {DAV:}getcontentlength
+  #
+  # {http://owncloud.org/ns}id The fileid namespaced by the instance id,
+  #   globally unique
+  # {http://owncloud.org/ns}fileid The unique id for the file within the
+  #   instance
+  # {http://owncloud.org/ns}favorite
+  # {http://owncloud.org/ns}comments-href
+  # {http://owncloud.org/ns}comments-count
+  # {http://owncloud.org/ns}comments-unread
+  # {http://owncloud.org/ns}owner-id The user id of the owner of a shared file
+  # {http://owncloud.org/ns}owner-display-name The display name of the owner of
+  #   a shared file
+  # {http://owncloud.org/ns}share-types
+  # {http://owncloud.org/ns}checksums
+  # {http://owncloud.org/ns}size Unlike getcontentlength, this property also
+  #   works for folders reporting the size of everything in the folder.
+  #
+  # {http://nextcloud.org/ns}has-preview
+
+  # In the following, the properties are listed in alphabetical order within
+  # each namespace
+  property_info <- c(
+    "namespace:name:priority:column",
+    "d:getcontentlength:2:contentlength",
+    "d:getcontenttype:2:contenttype",
+    "d:getetag:1:etag",
+    "d:getlastmodified:1:lastmodified",
+    "d:resourcetype:2:resourcetype",
+    "oc:checksums:2:checksum",
+    "oc:comments-count:1:commentscount",
+    "oc:comments-href:2:commentshref",
+    "oc:comments-unread:2:commentsunread",
+    "oc:favorite:2:favorite",
+    "oc:fileid:1:fileid",
+    "oc:id:2:id",
+    "oc:owner-display-name:2:ownername",
+    "oc:owner-id:1:ownerid",
+    "oc:permissions:1:permissions",
+    "oc:share-types:2:sharetypes",
+    "oc:size:1:size",
+    "nc:has-preview:2:haspreview"
   )
+
+  result <- read.table(
+    text = property_info, sep = ":", header = TRUE, stringsAsFactors = FALSE
+  )
+
+  if (! as_data_frame) {
+    return(kwb.utils::pasteColumns(result, names(result)[1:2], sep = ":"))
+  }
+
+  result
 }
 
 # request_body -----------------------------------------------------------------
