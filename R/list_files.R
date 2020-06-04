@@ -240,7 +240,7 @@ parse_status <- function(status)
 
 #' @importFrom kwb.utils noFactorDataFrame stringList
 #' @keywords internal
-parse_prop <- function(prop)
+parse_prop <- function(prop, do_warn = FALSE)
 {
   stopifnot(is.list(prop))
 
@@ -248,7 +248,7 @@ parse_prop <- function(prop)
   prop_names <- names(prop)
   unexpected <- ! prop_names %in% sort(unique(property_info$name))
 
-  if (any(unexpected)) warning(
+  if (any(unexpected) && do_warn) warning(
     "Unexpected properties: ", kwb.utils::stringList(prop_names[unexpected])
   )
 

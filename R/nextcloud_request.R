@@ -11,7 +11,7 @@ nextcloud_request <- function(
   # Combine authentication and headers (if any)
   config <- c(auth, if (length(headers)) do.call(httr::add_headers, headers))
 
-  verb <- match.arg(verb, c("GET", "PROPFIND", "PUT", "DELETE"))
+  verb <- match.arg(verb, c("GET", "PROPFIND", "PUT", "DELETE", "MKCOL"))
 
   as <- match.arg(as, c("response", "raw", "text", "parsed", "content"))
 
@@ -28,6 +28,10 @@ nextcloud_request <- function(
   } else if (verb == "PUT") {
 
     httr::PUT(url, config, body = body)
+
+  }  else if (verb == "MKCOL") {
+
+    httr::VERB(verb, url, config)
 
   } else if (verb == "DELETE") {
 
@@ -46,10 +50,17 @@ nextcloud_request <- function(
 
     xml <- httr::content(response)
 
-    stop(
-      xml2::xml_text(xml2::xml_find_all(xml, "/d:error/s:message")),
-      call. = FALSE
-    )
+    find_text <- function(x) xml2::xml_text(xml2::xml_find_all(xml, x))
+
+    elements <- c("exception", "message")
+
+    xpaths <- stats::setNames(paste0("/d:error/s:", elements), elements)
+
+    values <- lapply(xpaths, find_text)
+
+    stop(call. = FALSE, sprintf(
+      "\nException: %s\nMessage: %s", values$exception, values$message
+    ))
   }
 
   if (as == "response") {
