@@ -57,7 +57,6 @@ fileid <- file_info$fileid[file_info$file == "testfile.txt"]
 fileid
 
 # Show the versions of the file (identified by fileid)
-# Ignore the warnings
 version_info <- get_version_info(fileid)
 
 # There are two versions (the current version is not shown!)
@@ -71,15 +70,11 @@ downloaded_files
 lapply(downloaded_files, readLines)
 
 # Delete a specific version? This seems to be not working
-nextcloud_request(version_info$href[1], "DELETE", really = real_trick)
+nextcloud_request(version_info$href[1], "DELETE", really = really)
 
 # Delete the file
 # I am using the string constant instead of "href" to see what I do!
-nextcloud_request(
-  href = path_to_file_href("testfolder-1/testfile.txt"),
-  "DELETE",
-  really = real_trick
-)
+delete_file_or_folder("testfolder-1/testfile.txt", really = really)
 
 # File deleted? Yes!
 list_files("testfolder-1")
@@ -94,11 +89,7 @@ upload_file(file, target_path)
 list_files(target_path)
 
 # Now try to delete the whole directory
-nextcloud_request(
-  href = path_to_file_href("testfolder-1"),
-  "DELETE",
-  really = real_trick
-)
+delete_file_or_folder("testfolder-1", really = really)
 
 # Try to list again
 list_files(target_path) # -> not found (any more)!
