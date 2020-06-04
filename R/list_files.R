@@ -1,86 +1,175 @@
-if (FALSE)
-{
-  path <- "proposals/bmbf_digital/Previous-projects/Budget/10_Filled_out_forms"
-  path <- "proposals/bmbf_digital/Previous-projects/Budget"
-  path <- "projects"
-  path <- "projects/finale"
-  path <- "/projects/finale///"
-
-  info <- kwb.nextcloud:::list_files(path)
-  View(info)
-
-  full_paths <- file.path(path, info$href)
-
-  kwb.nextcloud:::download_files(paths = full_paths)
-}
-
 # list_files -------------------------------------------------------------------
+
+#' List Files on the Nextcloud Server
+#'
+#' @param path path to the nextcloud folder to be listed
+#' @param pattern an optional regular expression. Only file names which match
+#'   the regular expression will be returned.
+#' @param recursive if \code{TRUE} the contents of subfolders are listed as
+#'   well, up to the given \code{max_depth}.
+#' @param full_info if \code{TRUE} the full file information is returned as a
+#'   data frame. If \code{FALSE} (the default) only the (relative) file paths
+#'   are returned as a vector of character.
+#' @param user user name, by default taken from the environment variable
+#'   "NEXTCLOUD_USER".
+#' @param auth authentication header as provided by
+#'   \code{kwb.nextcloud:::nextcloud_auth}
+#' @param max_depth maximum recursion depth if \code{recursive = TRUE}. By
+#'   default \code{max_depth} is \code{NA} meaning that the function behaves
+#'   "fully recursive".
+#' @param \dots further arguments passed to
+#'   \code{\link[kwb.utils]{listToDepth}}.
+#' @importFrom kwb.utils listToDepth moveColumnsToFront renameColumns
+#' @importFrom kwb.utils selectColumns toLookupList
+#' @export
+#' @return vector of character or data frame, each with attribute "root" being
+#'   set to the value of \code{path}.
+#'
 list_files <- function(
-  path, user = nextcloud_user(), password = nextcloud_password(), method = 1L
+  path = "",
+  pattern = NULL,
+  recursive = FALSE,
+  full_info = FALSE,
+  user = nextcloud_user(),
+  auth = nextcloud_auth(),
+  max_depth = NA,
+  ...
 )
 {
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
-  #path = "proposals/bmbf_digital/Previous-projects/Budget"
-  #user = nextcloud_user();password = nextcloud_password();method=1L
+  #kwb.utils:::assignArgumentDefaults(list_files)
 
-  path <- remove_leading_slashes(path)
+  file_info <- kwb.utils::listToDepth(
+    path,
+    max_depth = ifelse(recursive, max_depth, 0L),
+    full_info = full_info,
+    FUN = list_cloud_files,
+    pattern = pattern,
+    user = user,
+    auth = auth
+    , ...
+  )
 
-  stopifnot(method %in% 1:2)
+  result <- if (full_info) {
 
-  urls <- get_nextcloud_urls(user, path = path)
+    result <- kwb.utils::moveColumnsToFront(file_info, c("file", "isdir"))
 
-  body <- request_body_list_files()
-  #cat(body)
+    rename_properties(result)
 
-  content <- parsed_propfind(url = urls$url_files, user, password, body = body)
+  } else {
 
-  to_numeric <- function(xx) as.numeric(kwb.utils::defaultIfNULL(xx, "0"))
-
-  if (method == 1L) {
-
-    result <- parse_xml_content_1(content)
-
-    result$href_orig <- result$href
-
-    #start <- nchar(urls$user_files) + nchar(dirname(path)) + 4L
-    start <- min(nchar(result$href)) + 1L
-
-    result$href <- substr(x = result$href, start, stop = nchar(result$href))
-
-    result$getlastmodified <- to_posix(x = result$getlastmodified)
-    result$getetag <- gsub('"', "", result$getetag)
-    result$fileid <- to_numeric(result$fileid)
-    result$size <- to_numeric(result$size)
-    result$has.preview <- result$has.preview != "false"
-    result$favorite <- to_numeric(result$favorite)
-    result$comments.unread <- to_numeric(result$comments.unread)
-
-    result
-
-  } else if (method == 2L) {
-
-    result <- parse_xml_content_2(content)
-
-    result
+    kwb.utils::selectColumns(file_info, "file")
   }
+
 
   structure(result, root = path)
 }
 
-# to_posix ---------------------------------------------------------------------
-to_posix <- function(x)
+# list_cloud_files -------------------------------------------------------------
+
+#' @importFrom kwb.utils selectColumns
+#' @keywords internal
+list_cloud_files <- function(
+  path = character(),
+  full_info = FALSE,
+  pattern = NULL,
+  user = nextcloud_user(),
+  auth = nextcloud_auth(),
+  priority = 1L,
+  parent_only = FALSE # TRUE -> return only the properties of the parent folder
+)
 {
-  stopifnot(is.character(x), all(grepl("GMT$", x)))
+  #kwb.utils::assignPackageObjects("kwb.nextcloud")
+  #path = "proposals/bmbf_digital/Previous-projects/Budget"
+  #user = nextcloud_user();password = nextcloud_password()
 
-  locale <- Sys.getlocale("LC_TIME")
-  on.exit(Sys.setlocale("LC_TIME", locale))
-  Sys.setlocale("LC_TIME", "C")
+  if (length(path) == 0L) {
 
-  as.POSIXct(x, format = "%a, %d %b %Y %H:%M:%S GMT", tz = "GMT")
+    # Return an empty result data frame as a template
+    return(list_cloud_files(path = "", full_info)[FALSE, ])
+  }
+
+  path <- remove_leading_slashes(path)
+
+  message("Listing ", path)
+
+  content <- nextcloud_request(
+    href = path_to_file_href(path, user),
+    verb = "PROPFIND",
+    auth = auth,
+    body = request_body_list_files(),
+    as = "parsed",
+    headers = list(Depth = ifelse(parent_only, 0L, 1L))
+  )
+
+  to_numeric <- function(xx) as.numeric(kwb.utils::defaultIfNULL(xx, "0"))
+
+  result <- parse_xml_content(content)
+
+  pull <- function(x) kwb.utils::selectColumns(result, x)
+
+  href <- pull("href")
+  result$file <- substring(href, min(nchar(href)) + 1L)
+
+  result$getlastmodified <- to_posix(x = pull("getlastmodified"))
+  result$getetag <- gsub('"', "", pull("getetag"))
+  result$fileid <- to_numeric(pull("fileid"))
+  result$size <- to_numeric(pull("size"))
+  result$has.preview <- pull("has.preview") != "false"
+  result$favorite <- to_numeric(pull("favorite"))
+  result$comments.unread <- to_numeric(pull("comments.unread"))
+
+  # Provide columns as required by kwb.utils::listToDepth()
+  result$isdir <- pull("resourcetype") == "list()"
+
+  # Define the columns to keep
+  columns <- if (full_info) {
+
+    all_names <- names(result)
+
+    if (is.na(priority)) {
+
+      all_names
+
+    } else {
+
+      prop_info <- get_property_info()
+
+      cols <- prop_info$name[prop_info$priority <= priority]
+
+      intersect(c("file", "isdir", cols, "href"), all_names)
+    }
+
+  } else {
+
+    c("file", "isdir")
+  }
+
+  pull <- function(x) kwb.utils::selectColumns(result, x)
+
+  # Exclude the requested folder itself
+  keep <- if (parent_only) {
+
+    TRUE
+
+  } else {
+
+    nzchar(pull("file"))
+  }
+
+  if (! is.null(pattern)) {
+    keep <- keep & (pull("isdir") | grepl(pattern, pull("file")))
+  }
+
+  structure(result[keep, columns], root = path)
 }
 
-# parse_xml_content_1 ----------------------------------------------------------
-parse_xml_content_1 <- function(content)
+# parse_xml_content ------------------------------------------------------------
+
+#' @importFrom xml2 as_list
+#' @importFrom kwb.utils safeRowBindAll
+#' @keywords internal
+parse_xml_content <- function(content)
 {
   x_all <- xml2::as_list(content)
 
@@ -92,7 +181,7 @@ parse_xml_content_1 <- function(content)
 # parse_response ---------------------------------------------------------------
 parse_response <- function(response)
 {
-  #response <- responses[[1L]]
+  #response <- responses[[2L]]
   elements <- names(response)
 
   stopifnot(all(elements %in% c("href", "propstat")))
@@ -101,6 +190,7 @@ parse_response <- function(response)
   propstats <- lapply(response[elements == "propstat"], parse_propstat)
 
   for (i in seq_along(propstats)) {
+
     names_i <- names(propstats[[i]])
     is_status <- names_i == "status"
     names_i[is_status] <- paste0(names_i[is_status], ".", i)
@@ -126,7 +216,7 @@ parse_href <- function(href)
 # parse_propstat ---------------------------------------------------------------
 parse_propstat <- function(propstat)
 {
-  #propstat <- propstats[[1]]
+  #propstat <- propstats[[3]]
 
   stopifnot(identical(sort(names(propstat)), c("prop", "status")))
 
@@ -147,105 +237,22 @@ parse_status <- function(status)
 }
 
 # parse_prop -------------------------------------------------------------------
-parse_prop <- function(prop)
+
+#' @importFrom kwb.utils noFactorDataFrame stringList
+#' @keywords internal
+parse_prop <- function(prop, do_warn = FALSE)
 {
   stopifnot(is.list(prop))
-  stopifnot(all(names(prop) %in% c(
-    "comments-unread",
-    "favorite",
-    "fileid",
-    "getcontentlength",
-    "getcontenttype",
-    "getetag",
-    "getlastmodified",
-    "has-preview",
-    "owner-display-name",
-    "permissions",
-    "resourcetype",
-    "share-types",
-    "size"
-  )))
+
+  property_info <- get_property_info()
+  prop_names <- names(prop)
+  unexpected <- ! prop_names %in% sort(unique(property_info$name))
+
+  if (any(unexpected) && do_warn) warning(
+    "Unexpected properties: ", kwb.utils::stringList(prop_names[unexpected])
+  )
 
   do.call(kwb.utils::noFactorDataFrame, lapply(prop, function(x) {
     if (length(x) == 0L) "" else as.character(x)
   }))
-}
-
-# parse_xml_content_2 ----------------------------------------------------------
-parse_xml_content_2 <- function(content)
-{
-  extract_text <- function(xpath) {
-    text <- xml2::xml_text(xml2::xml_find_all(content, paste0("//", xpath)))
-  }
-
-  result <- lapply(xpaths(), extract_text)
-
-  lengths(result)
-
-  result <- do.call(data.frame, result)
-
-  stats::setNames(result, xpaths_to_names(xpaths()))
-}
-
-# xpaths -----------------------------------------------------------------------
-xpaths <- function()
-{
-  c(
-    "d:href",
-    "d:getlastmodified",
-    "d:getetag",
-    "d:getcontenttype",
-    "d:resourcetype",
-    "oc:fileid",
-    "oc:permissions",
-    "oc:size",
-    "nc:has-preview",
-    "oc:favorite",
-    "oc:comments-unread",
-    "oc:owner-display-name",
-    "oc:share-types"
-  )
-}
-
-# xpaths_to_names --------------------------------------------------------------
-xpaths_to_names <- function(xpaths)
-{
-  sapply(strsplit(xpaths, ":"), "[", 2L)
-}
-
-# get_nextcloud_urls -----------------------------------------------------------
-get_nextcloud_urls <- function(user, ...)
-{
-  dictionary <- list(
-    base = nextcloud_url(),
-    dav = "remote.php/dav",
-    user_files = "<dav>/files/<user>",
-    user_versions = "<dav>/versions/<user>",
-    url_files = "<base>/<user_files>/<path>",
-    url_versions = "<base>/<user_versions>/<fileid>"
-  )
-
-  kwb.utils::resolve(dictionary, user = user, ...)
-}
-
-# parsed_propfind --------------------------------------------------------------
-parsed_propfind <- function(
-  url, user = nextcloud_user(), body = NULL, password = nextcloud_password()
-)
-{
-  response <- httr::VERB(
-    "PROPFIND", url, nextcloud_auth(user, password), body = body
-  )
-
-  stop_on_httr_error(response)
-
-  httr::content(response, as = "parsed")
-}
-
-# nextcloud_auth ---------------------------------------------------------------
-nextcloud_auth <- function(
-  user = nextcloud_user(), password = nextcloud_password()
-)
-{
-  httr::authenticate(user, password)
 }

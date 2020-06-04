@@ -1,6 +1,6 @@
 Package: kwb.nextcloud
 Title: R Package for Accessing Nextcloud Using WebDAV API
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     c(person(given = "Michael",
              family = "Rustler",
@@ -26,12 +26,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Imports:
     httr (>= 1.4.1), 
-    kwb.utils (>= 0.5.1),
+    kwb.file (>= 0.3.1),
+    kwb.utils (>= 0.6.0),
     xml2 (>= 1.3.2)
 Remotes:
-    github::kwb-r/kwb.utils@v0.5.1
+    github::kwb-r/kwb.file@v0.3.1,
+    github::kwb-r/kwb.utils@v0.6.0
 Suggests: 
     covr,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr

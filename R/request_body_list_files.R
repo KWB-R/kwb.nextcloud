@@ -1,91 +1,164 @@
-# Test generating request bodies
-if (FALSE)
-{
-  # Example requests from https://github.com/dmfs/davwiki/wiki/PROPFIND
-
-  # <?xml version="1.0" encoding="utf-8" ?>
-  # <D:propfind xmlns:D="DAV:">
-  #   <D:prop xmlns:R="http://ns.example.com/boxschema/">
-  #     <R:bigbox/>
-  #     <R:author/>
-  #     <R:DingALing/>
-  #     <R:Random/>
-  #   </D:prop>
-  # </D:propfind>
-
-  cat(kwb.nextcloud:::request_body(
-    kwb.nextcloud:::element_propfind(
-      owncloud = FALSE,
-      nextcloud = FALSE,
-      kwb.nextcloud:::element_prop(
-        kwb.nextcloud:::tag_xml("R:bigbox"),
-        kwb.nextcloud:::tag_xml("R:author"),
-        kwb.nextcloud:::tag_xml("R:DingALing"),
-        kwb.nextcloud:::tag_xml("R:Random"),
-        attributes = list("xmlns:R" = "http://ns.example.com/boxschema/")
-      )
-    )
-  ))
-
-  # <?xml version="1.0" encoding="utf-8" ?>
-  # <propfind xmlns="DAV:">
-  #   <propname/>
-  # </propfind>
-
-  cat(kwb.nextcloud:::request_body(
-    kwb.nextcloud:::element_propfind(
-      owncloud = FALSE,
-      nextcloud = FALSE,
-      kwb.nextcloud:::tag_xml("propname")
-    )
-  ))
-
-  # <?xml version="1.0" encoding="utf-8" ?>
-  # <D:propfind xmlns:D="DAV:">
-  #   <D:allprop/>
-  # </D:propfind>
-
-  cat(kwb.nextcloud:::request_body(
-    kwb.nextcloud:::element_propfind(
-      owncloud = FALSE,
-      nextcloud = FALSE,
-      kwb.nextcloud:::tag_xml("d:allprop")
-    )
-  ))
-
-  body <- kwb.nextcloud:::request_body(
-    kwb.nextcloud:::element_propfind(
-      kwb.nextcloud:::tag_xml("propname")
-    )
-  )
-
-  url <- kwb.nextcloud:::get_nextcloud_urls("hsonne", path = "projects/finale/urban-systems")$url_files
-
-  xml <- kwb.nextcloud:::parsed_propfind(url, body = body)
-
-  cat(as.character(xml))
-}
-
 # request_body_list_files ------------------------------------------------------
 request_body_list_files <- function()
 {
-  request_body(
-    element_propfind(
-      element_prop(
-        tag_xml("d:getlastmodified"),
-        tag_xml("d:getetag"),
-        tag_xml("d:getcontenttype"),
-        tag_xml("d:resourcetype"),
-        tag_xml("oc:fileid"),
-        tag_xml("oc:permissions"),
-        tag_xml("oc:size"),
-        tag_xml("d:getcontentlength"),
-        tag_xml("nc:has-preview"),
-        tag_xml("oc:favorite"),
-        tag_xml("oc:comments-unread"),
-        tag_xml("oc:owner-display-name"),
-        tag_xml("oc:share-types")
-      )
-    )
+  property_strings <- get_property_info(as_data_frame = FALSE)
+
+  property_elements <- lapply(property_strings, tag_xml)
+
+  request_body(element_propfind(do.call(element_prop, property_elements)))
+}
+
+# get_property_info ------------------------------------------------------------
+
+#' @importFrom utils read.table
+#' @keywords internal
+get_property_info <- function(as_data_frame = TRUE)
+{
+  # The following properties are supported (https://docs.nextcloud.com/server/
+  # 15/developer_manual/client_apis/WebDAV/basic.html)
+  #
+  # {DAV:}getlastmodified
+  # {DAV:}getetag
+  # {DAV:}getcontenttype
+  # {DAV:}resourcetype
+  # {DAV:}getcontentlength
+  #
+  # {http://owncloud.org/ns}id The fileid namespaced by the instance id,
+  #   globally unique
+  # {http://owncloud.org/ns}fileid The unique id for the file within the
+  #   instance
+  # {http://owncloud.org/ns}favorite
+  # {http://owncloud.org/ns}comments-href
+  # {http://owncloud.org/ns}comments-count
+  # {http://owncloud.org/ns}comments-unread
+  # {http://owncloud.org/ns}owner-id The user id of the owner of a shared file
+  # {http://owncloud.org/ns}owner-display-name The display name of the owner of
+  #   a shared file
+  # {http://owncloud.org/ns}share-types
+  # {http://owncloud.org/ns}checksums
+  # {http://owncloud.org/ns}size Unlike getcontentlength, this property also
+  #   works for folders reporting the size of everything in the folder.
+  #
+  # {http://nextcloud.org/ns}has-preview
+
+  # In the following, the properties are listed in alphabetical order within
+  # each namespace
+  property_info <- c(
+    "namespace:name:priority:column",
+    "d:getcontentlength:2:contentlength",
+    "d:getcontenttype:2:contenttype",
+    "d:getetag:1:etag",
+    "d:getlastmodified:1:lastmodified",
+    "d:resourcetype:2:resourcetype",
+    "oc:checksums:2:checksum",
+    "oc:comments-count:1:commentscount",
+    "oc:comments-href:2:commentshref",
+    "oc:comments-unread:2:commentsunread",
+    "oc:favorite:2:favorite",
+    "oc:fileid:1:fileid",
+    "oc:id:2:id",
+    "oc:owner-display-name:2:ownername",
+    "oc:owner-id:1:ownerid",
+    "oc:permissions:1:permissions",
+    "oc:share-types:2:sharetypes",
+    "oc:size:1:size",
+    "nc:has-preview:2:haspreview"
+  )
+
+  result <- utils::read.table(
+    text = property_info, sep = ":", header = TRUE, stringsAsFactors = FALSE
+  )
+
+  if (! as_data_frame) {
+    return(kwb.utils::pasteColumns(result, names(result)[1:2], sep = ":"))
+  }
+
+  result
+}
+
+# request_body -----------------------------------------------------------------
+request_body <- function(...)
+{
+  paste(c(xml_declaration(), ...), collapse = "\n")
+}
+
+# xml_declaration --------------------------------------------------------------
+xml_declaration <- function()
+{
+  paste(
+    "<?xml", key_value(.list = list(version = "1.0", encoding = "utf-8")), "?>"
   )
 }
+
+# key_value --------------------------------------------------------------------
+key_value <- function(key, value, .list = NULL)
+{
+  if (! is.null(.list)) {
+
+    keys <- names(.list)
+    values <- unlist(.list)
+
+    return(do.call(paste, lapply(seq_along(.list), function(i) {
+      key_value(keys[i], values[i])
+    })))
+  }
+
+  paste0(key, "=\"", value, "\"")
+}
+
+# element_propfind -------------------------------------------------------------
+element_propfind <- function(
+  ..., owncloud = TRUE, nextcloud = TRUE, depth = 0L
+)
+{
+  attributes <- attributes_propfind(owncloud, nextcloud)
+
+  element_xml("d:propfind", ..., attributes = attributes, depth = depth)
+}
+
+# attributes_propfind ----------------------------------------------------------
+attributes_propfind <- function(owncloud = TRUE, nextcloud = TRUE)
+{
+  c(
+    list("xmlns:d" = "DAV:"),
+    if (owncloud) list("xmlns:oc" = "http://owncloud.org/ns"),
+    if (nextcloud) list("xmlns:nc" = "http://nextcloud.org/ns")
+  )
+}
+
+# element_xml ------------------------------------------------------------------
+element_xml <- function(x, ..., attributes = list(), depth = 0L)
+{
+  strings <- do.call(c, args = c(
+    list(tag_xml(x, attributes, close = FALSE)),
+    lapply(list(...), indent, 1L),
+    list(tag_xml(x, close = 2L))
+  ))
+
+  indent(strings, depth)
+}
+
+# tag_xml ----------------------------------------------------------------------
+tag_xml <- function(x, attributes = NULL, close = TRUE, depth = 0L)
+{
+  # Closed must be FALSE if attributes are given
+  stopifnot(is.null(attributes) || isFALSE(close))
+
+  string <- paste0(
+    "<",
+    if (close == 2L) "/",
+    x,
+    if (length(attributes)) paste0(" ", key_value(.list = attributes)),
+    if (close == 1L) " /",
+    ">"
+  )
+
+  indent(string, depth)
+}
+
+# element_prop -----------------------------------------------------------------
+element_prop <- function(..., attributes = NULL, depth = 0L)
+{
+  element_xml("d:prop", ..., attributes = attributes, depth = depth)
+}
+
