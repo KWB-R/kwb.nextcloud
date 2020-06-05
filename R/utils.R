@@ -45,6 +45,18 @@ fileid_to_version_href <- function(fileid = "", user = nextcloud_user())
   file.path(dav_path(), "versions", user, "versions", fileid)
 }
 
+# get_file_or_folder_info ------------------------------------------------------
+get_file_or_folder_info <- function(
+  path, user = nextcloud_user(), auth = nextcloud_auth()
+)
+{
+  stopifnot(is.character(path), length(path) == 1L)
+
+  list_files(
+    path, parent_only = TRUE, full_info = TRUE, user = user, auth = auth
+  )
+}
+
 # href_to_url ------------------------------------------------------------------
 href_to_url <- function(href)
 {
@@ -91,6 +103,22 @@ is_try_error <- function(x)
   inherits(x, "try-error")
 }
 
+# lookup_fileid ----------------------------------------------------------------
+lookup_fileid <- function(
+  path, user = nextcloud_user(), auth = nextcloud_auth()
+)
+{
+  stopifnot(is.character(path))
+
+  if (length(path) > 1L) {
+    return(lapply(path, lookup_fileid))
+  }
+
+  info <- get_file_or_folder_info(path, user = user, auth = auth)
+
+  kwb.utils::selectColumns(info, "fileid")
+}
+
 # nextcloud_auth ---------------------------------------------------------------
 nextcloud_auth <- function(
   user = nextcloud_user(), password = nextcloud_password()
@@ -120,6 +148,19 @@ rename_properties <- function(result)
     keys = gsub("-", ".", prop_names$name),
     values = prop_names$column
   ))
+}
+
+# stopifnot_folder -------------------------------------------------------------
+stopifnot_folder <- function(
+  path, user = nextcloud_user(), auth = nextcloud_auth()
+)
+{
+  if (! is_cloud_directory(path, user = user, auth = auth)) {
+
+    stop(call. = FALSE, sprintf(
+      "The given path (%s) does not represent a folder.", path
+    ))
+  }
 }
 
 # to_posix ---------------------------------------------------------------------
