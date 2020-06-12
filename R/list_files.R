@@ -102,25 +102,19 @@ list_cloud_files <- function(
     headers = list(Depth = ifelse(parent_only, 0L, 1L))
   )
 
-  to_numeric <- function(xx) as.numeric(kwb.utils::defaultIfNULL(xx, "0"))
-
+  # Parse XML content to data frame
   result <- parse_xml_content(content)
 
-  pull <- function(x) kwb.utils::selectColumns(result, x)
+  # Helper functions
+  get_column <- function(x) kwb.utils::selectColumns(result, x)
+  remove_shortest_left <- function(x) substring(x, min(nchar(x)) + 1L)
 
-  href <- pull("href")
-  result$file <- substring(href, min(nchar(href)) + 1L)
-
-  result$getlastmodified <- to_posix(x = pull("getlastmodified"))
-  result$getetag <- gsub('"', "", pull("getetag"))
-  result$fileid <- to_numeric(pull("fileid"))
-  result$size <- to_numeric(pull("size"))
-  result$has.preview <- pull("has.preview") != "false"
-  result$favorite <- to_numeric(pull("favorite"))
-  result$comments.unread <- to_numeric(pull("comments.unread"))
+  # Convert types from text to numeric/POSIXct
+  result <- convert_types(result)
 
   # Provide columns as required by kwb.utils::listToDepth()
-  result$isdir <- pull("resourcetype") == "list()"
+  result$file <- remove_shortest_left(get_column("href"))
+  result$isdir <- get_column("resourcetype") == "list()"
 
   # Exclude the requested folder itself
   keep <- keep_row(
@@ -230,6 +224,23 @@ parse_prop <- function(prop, do_warn = FALSE)
   do.call(kwb.utils::noFactorDataFrame, lapply(prop, function(x) {
     if (length(x) == 0L) "" else as.character(x)
   }))
+}
+
+# convert_types ----------------------------------------------------------------
+convert_types <- function(result)
+{
+  get_column <- function(x) kwb.utils::selectColumns(result, x)
+  to_numeric <- function(x) as.numeric(kwb.utils::defaultIfNULL(x, "0"))
+
+  result$getlastmodified <- to_posix(get_column("getlastmodified"))
+  result$getetag <- gsub('"', "", get_column("getetag"))
+  result$fileid <- to_numeric(get_column("fileid"))
+  result$size <- to_numeric(get_column("size"))
+  result$has.preview <- get_column("has.preview") != "false"
+  result$favorite <- to_numeric(get_column("favorite"))
+  result$comments.unread <- to_numeric(get_column("comments.unread"))
+
+  result
 }
 
 # keep_row ---------------------------------------------------------------------
