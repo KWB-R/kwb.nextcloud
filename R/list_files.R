@@ -122,44 +122,19 @@ list_cloud_files <- function(
   # Provide columns as required by kwb.utils::listToDepth()
   result$isdir <- pull("resourcetype") == "list()"
 
-  # Define the columns to keep
-  columns <- if (full_info) {
-
-    all_names <- names(result)
-
-    if (is.na(priority)) {
-
-      all_names
-
-    } else {
-
-      prop_info <- get_property_info()
-
-      cols <- prop_info$name[prop_info$priority <= priority]
-
-      intersect(c("file", "isdir", cols, "href"), all_names)
-    }
-
-  } else {
-
-    c("file", "isdir")
-  }
-
-  pull <- function(x) kwb.utils::selectColumns(result, x)
-
   # Exclude the requested folder itself
-  keep <- if (parent_only) {
+  keep <- keep_row(
+    parent_only,
+    file = kwb.utils::selectColumns(result, "file"),
+    isdir = kwb.utils::selectColumns(result, "isdir")
+  )
 
-    TRUE
-
-  } else {
-
-    nzchar(pull("file"))
-  }
-
-  if (! is.null(pattern)) {
-    keep <- keep & (pull("isdir") | grepl(pattern, pull("file")))
-  }
+  # Define the columns to keep
+  columns <- determine_required_columns(
+    full_info,
+    all_names = names(result),
+    priority = priority
+  )
 
   structure(result[keep, columns], root = path)
 }
@@ -255,4 +230,43 @@ parse_prop <- function(prop, do_warn = FALSE)
   do.call(kwb.utils::noFactorDataFrame, lapply(prop, function(x) {
     if (length(x) == 0L) "" else as.character(x)
   }))
+}
+
+# keep_row ---------------------------------------------------------------------
+keep_row <- function(parent_only, file, isdir, pattern = NULL)
+{
+  keep <- if (parent_only) {
+
+    TRUE
+
+  } else {
+
+    nzchar("file")
+  }
+
+  if (! is.null(pattern)) {
+    keep <- keep & (isdir | grepl(pattern, file))
+  }
+
+  keep
+}
+
+# determine_required_columns ---------------------------------------------------
+determine_required_columns <- function(full_info, all_names, priority = NA)
+{
+  main_columns <- c("file", "isdir")
+
+  if (! full_info) {
+    return(main_columns)
+  }
+
+  if (is.na(priority)) {
+    return(all_names)
+  }
+
+  prop_info <- get_property_info()
+
+  columns <- prop_info$name[prop_info$priority <= priority]
+
+  intersect(c(main_columns, columns, "href"), all_names)
 }
