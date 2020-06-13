@@ -36,6 +36,8 @@ list_files <- function(
   ...
 )
 {
+  # Test for endless recursion:
+  #kwb.nextcloud::list_files(recursive = TRUE)
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
   #kwb.utils:::assignArgumentDefaults(list_files)
 
@@ -80,8 +82,7 @@ list_cloud_files <- function(
 )
 {
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
-  #path = "proposals/bmbf_digital/Previous-projects/Budget"
-  #user = nextcloud_user();password = nextcloud_password()
+  #kwb.utils::assignArgumentDefaults(list_cloud_files);path=""
 
   if (length(path) == 0L) {
 
@@ -119,7 +120,7 @@ list_cloud_files <- function(
   # Exclude the requested folder itself
   keep <- keep_row(
     parent_only,
-    file = kwb.utils::selectColumns(result, "file"),
+    path = kwb.utils::selectColumns(result, "file"),
     isdir = kwb.utils::selectColumns(result, "isdir")
   )
 
@@ -244,7 +245,7 @@ convert_types <- function(result)
 }
 
 # keep_row ---------------------------------------------------------------------
-keep_row <- function(parent_only, file, isdir, pattern = NULL)
+keep_row <- function(parent_only, path, isdir, pattern = NULL)
 {
   keep <- if (parent_only) {
 
@@ -252,11 +253,11 @@ keep_row <- function(parent_only, file, isdir, pattern = NULL)
 
   } else {
 
-    nzchar("file")
+    nzchar(path)
   }
 
   if (! is.null(pattern)) {
-    keep <- keep & (isdir | grepl(pattern, file))
+    keep <- keep & (isdir | grepl(pattern, path))
   }
 
   keep
