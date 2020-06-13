@@ -2,11 +2,12 @@
 
 #' Compare Two Files Containing File Information
 #'
-#' Compare two CSV files as retrieved by list_files(..., full_info = TRUE)
+#' Compare two CSV files as retrieved by
+#'   \code{list_files(..., full_info = TRUE)}
 #'
 #' @param file_1 path to first csv file
 #' @param file_2 path to second csv file
-#' @param \dots further arguments passed to \code{\link[utils]{read.csv2}}
+#' @param \dots further arguments passed to \code{\link[=read.table]{read.csv2}}
 #' @importFrom utils read.csv2
 #' @export
 #'

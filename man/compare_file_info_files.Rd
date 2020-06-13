@@ -11,8 +11,9 @@ compare_file_info_files(file_1, file_2, ...)
 
 \item{file_2}{path to second csv file}
 
-\item{\dots}{further arguments passed to \code{\link[utils]{read.csv2}}}
+\item{\dots}{further arguments passed to \code{\link[=read.table]{read.csv2}}}
 }
 \description{
-Compare two CSV files as retrieved by list_files(..., full_info = TRUE)
+Compare two CSV files as retrieved by
+\code{list_files(..., full_info = TRUE)}
 }
