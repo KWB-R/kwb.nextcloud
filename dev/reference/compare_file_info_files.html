@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • kwb.nextcloud</title>
+<title>Compare Two Files Containing File Information — compare_file_info_files • kwb.nextcloud</title>
 
 
 <!-- jquery -->
@@ -45,7 +45,9 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Compare Two Files Containing File Information — compare_file_info_files" />
+<meta property="og:description" content="Compare two CSV files as retrieved by
+list_files(..., full_info = TRUE)" />
 
 
 <meta name="robots" content="noindex">
@@ -64,7 +66,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -132,90 +134,39 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Compare Two Files Containing File Information</h1>
+    <small class="dont-index">Source: <a href='https://github.com/KWB-R/kwb.nextcloud/blob/master/R/compare_file_info_files.R'><code>R/compare_file_info_files.R</code></a></small>
+    <div class="hidden name"><code>compare_file_info_files.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Compare two CSV files as retrieved by
+<code><a href='list_files.html'>list_files(..., full_info = TRUE)</a></code></p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>compare_file_info_files</span>(<span class='no'>file_1</span>, <span class='no'>file_2</span>, <span class='no'>...</span>)</pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="backup_cloud_folder.html">backup_cloud_folder()</a></code> </p>
-        </td>
-        <td><p>Backup a Cloud Folder to a Local Zip File</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="compare_file_info_files.html">compare_file_info_files()</a></code> </p>
-        </td>
-        <td><p>Compare Two Files Containing File Information</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_folder.html">create_folder()</a></code> </p>
-        </td>
-        <td><p>Create a Folder on the Cloud</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="delete_file_or_folder.html">delete_file_or_folder()</a></code> </p>
-        </td>
-        <td><p>Delete a File or Folder on the Cloud</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="download_files.html">download_files()</a></code> </p>
-        </td>
-        <td><p>Download Files from Cloud</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="get_version_info.html">get_version_info()</a></code> </p>
-        </td>
-        <td><p>Get Version Information on Files of Given IDs</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="list_file_versions.html">list_file_versions()</a></code> </p>
-        </td>
-        <td><p>List the Partner's File Versions (Except Current)</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="list_files.html">list_files()</a></code> </p>
-        </td>
-        <td><p>List Files on the Nextcloud Server</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="upload_file.html">upload_file()</a></code> </p>
-        </td>
-        <td><p>Upload a Local File to the Cloud</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>file_1</th>
+      <td><p>path to first csv file</p></td>
+    </tr>
+    <tr>
+      <th>file_2</th>
+      <td><p>path to second csv file</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>further arguments passed to <code><a href='https://rdrr.io/r/utils/read.table.html'>read.csv2</a></code></p></td>
+    </tr>
     </table>
-  </div>
 
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
