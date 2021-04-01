@@ -1,5 +1,10 @@
-# kwb.nextcloud 0.1.0 (2020-06-04)
+# [kwb.nextcloud 0.2.0](https://github.com/KWB-R/kwb.nextcloud/releases/tag/v0.2.0) <small>2021-04-01</small>
 
+* Fix bug in list_files(): endless recursion (#32)
+* Add `compare_file_info_files()` (from R package kwb.budget) 
+* CI: move to Github actions (from Travis, Appveyor)
+
+# [kwb.nextcloud 0.1.0](https://github.com/KWB-R/kwb.nextcloud/releases/tag/v0.1.0) <small>2020-06-04</small>
 Exported functions:
 
 * create_folder()
