@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Create a Folder on the Cloud — create_folder • kwb.nextcloud</title>
+<title>Compare Two Files Containing File Information — compare_file_info_files • kwb.nextcloud</title>
 
 
 <!-- jquery -->
@@ -45,8 +45,9 @@
 
 
 
-<meta property="og:title" content="Create a Folder on the Cloud — create_folder" />
-<meta property="og:description" content="Create a Folder on the Cloud" />
+<meta property="og:title" content="Compare Two Files Containing File Information — compare_file_info_files" />
+<meta property="og:description" content="Compare two CSV files as retrieved by
+list_files(..., full_info = TRUE)" />
 
 
 
@@ -135,33 +136,32 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Create a Folder on the Cloud</h1>
-    <small class="dont-index">Source: <a href='https://github.com/KWB-R/kwb.nextcloud/blob/master/R/create_folder.R'><code>R/create_folder.R</code></a></small>
-    <div class="hidden name"><code>create_folder.Rd</code></div>
+    <h1>Compare Two Files Containing File Information</h1>
+    <small class="dont-index">Source: <a href='https://github.com/KWB-R/kwb.nextcloud/blob/master/R/compare_file_info_files.R'><code>R/compare_file_info_files.R</code></a></small>
+    <div class="hidden name"><code>compare_file_info_files.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Create a Folder on the Cloud</p>
+    <p>Compare two CSV files as retrieved by
+<code><a href='list_files.html'>list_files(..., full_info = TRUE)</a></code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_folder</span><span class='op'>(</span><span class='va'>path</span>, user <span class='op'>=</span> <span class='fu'>nextcloud_user</span><span class='op'>(</span><span class='op'>)</span>, auth <span class='op'>=</span> <span class='fu'>nextcloud_auth</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>compare_file_info_files</span><span class='op'>(</span><span class='va'>file_1</span>, <span class='va'>file_2</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>path</th>
-      <td><p>path to the folder to be created</p></td>
+      <th>file_1</th>
+      <td><p>path to first csv file</p></td>
     </tr>
     <tr>
-      <th>user</th>
-      <td><p>user name, by default taken from the environment variable
-"NEXTCLOUD_USER".</p></td>
+      <th>file_2</th>
+      <td><p>path to second csv file</p></td>
     </tr>
     <tr>
-      <th>auth</th>
-      <td><p>authentication header as provided by
-<code>kwb.nextcloud:::nextcloud_auth</code></p></td>
+      <th>...</th>
+      <td><p>further arguments passed to <code><a href='https://rdrr.io/r/utils/read.table.html'>read.csv2</a></code></p></td>
     </tr>
     </table>
 

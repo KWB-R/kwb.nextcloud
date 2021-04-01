@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Create a Folder on the Cloud — create_folder • kwb.nextcloud</title>
+<title>List the Partner's File Versions (Except Current) — list_file_versions • kwb.nextcloud</title>
 
 
 <!-- jquery -->
@@ -45,8 +45,8 @@
 
 
 
-<meta property="og:title" content="Create a Folder on the Cloud — create_folder" />
-<meta property="og:description" content="Create a Folder on the Cloud" />
+<meta property="og:title" content="List the Partner's File Versions (Except Current) — list_file_versions" />
+<meta property="og:description" content="List the Partner's File Versions (Except Current)" />
 
 
 
@@ -135,33 +135,33 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Create a Folder on the Cloud</h1>
-    <small class="dont-index">Source: <a href='https://github.com/KWB-R/kwb.nextcloud/blob/master/R/create_folder.R'><code>R/create_folder.R</code></a></small>
-    <div class="hidden name"><code>create_folder.Rd</code></div>
+    <h1>List the Partner's File Versions (Except Current)</h1>
+    <small class="dont-index">Source: <a href='https://github.com/KWB-R/kwb.nextcloud/blob/master/R/list_file_versions.R'><code>R/list_file_versions.R</code></a></small>
+    <div class="hidden name"><code>list_file_versions.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Create a Folder on the Cloud</p>
+    <p>List the Partner's File Versions (Except Current)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_folder</span><span class='op'>(</span><span class='va'>path</span>, user <span class='op'>=</span> <span class='fu'>nextcloud_user</span><span class='op'>(</span><span class='op'>)</span>, auth <span class='op'>=</span> <span class='fu'>nextcloud_auth</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>list_file_versions</span><span class='op'>(</span><span class='va'>path</span>, pattern <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>path</th>
-      <td><p>path to the folder to be created</p></td>
+      <td><p>relative path to folder of which file versions are to be listed</p></td>
     </tr>
     <tr>
-      <th>user</th>
-      <td><p>user name, by default taken from the environment variable
-"NEXTCLOUD_USER".</p></td>
+      <th>pattern</th>
+      <td><p>optional. If specified, only files with names matching the
+pattern are considered.</p></td>
     </tr>
     <tr>
-      <th>auth</th>
-      <td><p>authentication header as provided by
-<code>kwb.nextcloud:::nextcloud_auth</code></p></td>
+      <th>...</th>
+      <td><p>additional arguments passed to <code><a href='list_files.html'>list_files</a></code>, such as
+<code>recursive</code>, <code>max_depth</code></p></td>
     </tr>
     </table>
 

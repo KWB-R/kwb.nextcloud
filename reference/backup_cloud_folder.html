@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Create a Folder on the Cloud — create_folder • kwb.nextcloud</title>
+<title>Backup a Cloud Folder to a Local Zip File — backup_cloud_folder • kwb.nextcloud</title>
 
 
 <!-- jquery -->
@@ -45,8 +45,9 @@
 
 
 
-<meta property="og:title" content="Create a Folder on the Cloud — create_folder" />
-<meta property="og:description" content="Create a Folder on the Cloud" />
+<meta property="og:title" content="Backup a Cloud Folder to a Local Zip File — backup_cloud_folder" />
+<meta property="og:description" content="Zip cloud folder and download to local zip file. Default file name:
+&amp;lt;backup_dir&amp;gt;/cloud-backup_&amp;lt;base_name&amp;gt;_&amp;lt;yyyy-mm-dd-HHMM&amp;gt;.zip" />
 
 
 
@@ -135,23 +136,36 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Create a Folder on the Cloud</h1>
-    <small class="dont-index">Source: <a href='https://github.com/KWB-R/kwb.nextcloud/blob/master/R/create_folder.R'><code>R/create_folder.R</code></a></small>
-    <div class="hidden name"><code>create_folder.Rd</code></div>
+    <h1>Backup a Cloud Folder to a Local Zip File</h1>
+    <small class="dont-index">Source: <a href='https://github.com/KWB-R/kwb.nextcloud/blob/master/R/backup_cloud_folder.R'><code>R/backup_cloud_folder.R</code></a></small>
+    <div class="hidden name"><code>backup_cloud_folder.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Create a Folder on the Cloud</p>
+    <p>Zip cloud folder and download to local zip file. Default file name:
+<code>&lt;backup_dir&gt;/cloud-backup_&lt;base_name&gt;_&lt;yyyy-mm-dd-HHMM&gt;.zip</code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_folder</span><span class='op'>(</span><span class='va'>path</span>, user <span class='op'>=</span> <span class='fu'>nextcloud_user</span><span class='op'>(</span><span class='op'>)</span>, auth <span class='op'>=</span> <span class='fu'>nextcloud_auth</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>backup_cloud_folder</span><span class='op'>(</span>
+  <span class='va'>path</span>,
+  target_file <span class='op'>=</span> <span class='fu'>get_download_target_file</span><span class='op'>(</span><span class='va'>base_name</span>, <span class='va'>backup_dir</span><span class='op'>)</span>,
+  user <span class='op'>=</span> <span class='fu'>nextcloud_user</span><span class='op'>(</span><span class='op'>)</span>,
+  auth <span class='op'>=</span> <span class='fu'>nextcloud_auth</span><span class='op'>(</span><span class='op'>)</span>,
+  backup_dir <span class='op'>=</span> <span class='fu'>kwb.utils</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kwb.utils/man/createDirectory.html'>createDirectory</a></span><span class='op'>(</span><span class='st'>"~/../Downloads/nextcloud-backups"</span><span class='op'>)</span>,
+  base_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/basename.html'>basename</a></span><span class='op'>(</span><span class='va'>path</span><span class='op'>)</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>path</th>
-      <td><p>path to the folder to be created</p></td>
+      <td><p>path to folder on the cloud</p></td>
+    </tr>
+    <tr>
+      <th>target_file</th>
+      <td><p>path to the target file. A default path is provided by
+<code>get_download_target_file(base_name, backup_dir)</code></p></td>
     </tr>
     <tr>
       <th>user</th>
@@ -162,6 +176,15 @@
       <th>auth</th>
       <td><p>authentication header as provided by
 <code>kwb.nextcloud:::nextcloud_auth</code></p></td>
+    </tr>
+    <tr>
+      <th>backup_dir</th>
+      <td><p>directory into which to download the zip-file</p></td>
+    </tr>
+    <tr>
+      <th>base_name</th>
+      <td><p>base name to be integrated into the name of the downloaded
+file</p></td>
     </tr>
     </table>
 
