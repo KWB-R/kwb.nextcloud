@@ -2,7 +2,7 @@
 
 * Fix bug in list_files(): endless recursion (#32)
 * Add `compare_file_info_files()` (from R package kwb.budget) 
-* CI: move to Github actions (from Travis, Appveyor)
+* CI: move from Travis and Appveyor to Github actions (#35)
 
 # [kwb.nextcloud 0.1.0](https://github.com/KWB-R/kwb.nextcloud/releases/tag/v0.1.0) <small>2020-06-04</small>
 Exported functions:
