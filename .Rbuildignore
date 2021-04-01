@@ -10,3 +10,4 @@
 ^codecov\.yml$
 ^index\.md$
 ^README\.md$
+^\.github$

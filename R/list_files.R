@@ -36,6 +36,8 @@ list_files <- function(
   ...
 )
 {
+  # Test for endless recursion:
+  #kwb.nextcloud::list_files(recursive = TRUE)
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
   #kwb.utils:::assignArgumentDefaults(list_files)
 
@@ -80,8 +82,7 @@ list_cloud_files <- function(
 )
 {
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
-  #path = "proposals/bmbf_digital/Previous-projects/Budget"
-  #user = nextcloud_user();password = nextcloud_password()
+  #kwb.utils::assignArgumentDefaults(list_cloud_files);path=""
 
   if (length(path) == 0L) {
 
@@ -102,64 +103,33 @@ list_cloud_files <- function(
     headers = list(Depth = ifelse(parent_only, 0L, 1L))
   )
 
-  to_numeric <- function(xx) as.numeric(kwb.utils::defaultIfNULL(xx, "0"))
-
+  # Parse XML content to data frame
   result <- parse_xml_content(content)
 
-  pull <- function(x) kwb.utils::selectColumns(result, x)
+  # Helper functions
+  get_column <- function(x) kwb.utils::selectColumns(result, x)
+  remove_shortest_left <- function(x) substring(x, min(nchar(x)) + 1L)
 
-  href <- pull("href")
-  result$file <- substring(href, min(nchar(href)) + 1L)
-
-  result$getlastmodified <- to_posix(x = pull("getlastmodified"))
-  result$getetag <- gsub('"', "", pull("getetag"))
-  result$fileid <- to_numeric(pull("fileid"))
-  result$size <- to_numeric(pull("size"))
-  result$has.preview <- pull("has.preview") != "false"
-  result$favorite <- to_numeric(pull("favorite"))
-  result$comments.unread <- to_numeric(pull("comments.unread"))
+  # Convert types from text to numeric/POSIXct
+  result <- convert_types(result)
 
   # Provide columns as required by kwb.utils::listToDepth()
-  result$isdir <- pull("resourcetype") == "list()"
-
-  # Define the columns to keep
-  columns <- if (full_info) {
-
-    all_names <- names(result)
-
-    if (is.na(priority)) {
-
-      all_names
-
-    } else {
-
-      prop_info <- get_property_info()
-
-      cols <- prop_info$name[prop_info$priority <= priority]
-
-      intersect(c("file", "isdir", cols, "href"), all_names)
-    }
-
-  } else {
-
-    c("file", "isdir")
-  }
-
-  pull <- function(x) kwb.utils::selectColumns(result, x)
+  result$file <- remove_shortest_left(get_column("href"))
+  result$isdir <- get_column("resourcetype") == "list()"
 
   # Exclude the requested folder itself
-  keep <- if (parent_only) {
+  keep <- keep_row(
+    parent_only,
+    path = kwb.utils::selectColumns(result, "file"),
+    isdir = kwb.utils::selectColumns(result, "isdir")
+  )
 
-    TRUE
-
-  } else {
-
-    nzchar(pull("file"))
-  }
-
-  if (! is.null(pattern)) {
-    keep <- keep & (pull("isdir") | grepl(pattern, pull("file")))
-  }
+  # Define the columns to keep
+  columns <- determine_required_columns(
+    full_info,
+    all_names = names(result),
+    priority = priority
+  )
 
   structure(result[keep, columns], root = path)
 }
@@ -255,4 +225,60 @@ parse_prop <- function(prop, do_warn = FALSE)
   do.call(kwb.utils::noFactorDataFrame, lapply(prop, function(x) {
     if (length(x) == 0L) "" else as.character(x)
   }))
+}
+
+# convert_types ----------------------------------------------------------------
+convert_types <- function(result)
+{
+  get_column <- function(x) kwb.utils::selectColumns(result, x)
+  to_numeric <- function(x) as.numeric(kwb.utils::defaultIfNULL(x, "0"))
+
+  result$getlastmodified <- to_posix(get_column("getlastmodified"))
+  result$getetag <- gsub('"', "", get_column("getetag"))
+  result$fileid <- to_numeric(get_column("fileid"))
+  result$size <- to_numeric(get_column("size"))
+  result$has.preview <- get_column("has.preview") != "false"
+  result$favorite <- to_numeric(get_column("favorite"))
+  result$comments.unread <- to_numeric(get_column("comments.unread"))
+
+  result
+}
+
+# keep_row ---------------------------------------------------------------------
+keep_row <- function(parent_only, path, isdir, pattern = NULL)
+{
+  keep <- if (parent_only) {
+
+    TRUE
+
+  } else {
+
+    nzchar(path)
+  }
+
+  if (! is.null(pattern)) {
+    keep <- keep & (isdir | grepl(pattern, path))
+  }
+
+  keep
+}
+
+# determine_required_columns ---------------------------------------------------
+determine_required_columns <- function(full_info, all_names, priority = NA)
+{
+  main_columns <- c("file", "isdir")
+
+  if (! full_info) {
+    return(main_columns)
+  }
+
+  if (is.na(priority)) {
+    return(all_names)
+  }
+
+  prop_info <- get_property_info()
+
+  columns <- prop_info$name[prop_info$priority <= priority]
+
+  intersect(c(main_columns, columns, "href"), all_names)
 }
