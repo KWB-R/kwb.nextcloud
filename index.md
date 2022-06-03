@@ -3,6 +3,7 @@
 [![codecov](https://codecov.io/github/KWB-R/kwb.nextcloud/branch/master/graphs/badge.svg)](https://codecov.io/github/KWB-R/kwb.nextcloud)
 [![Project Status](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/kwb.nextcloud)]()
+[![R-Universe_Status_Badge](https://kwb-r.r-universe.dev/badges/kwb.nextcloud)](https://kwb-r.r-universe.dev/)
 
 R package to access file infos or download data
 from an Nextcloud instance using the WebDav API
