@@ -60,6 +60,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">move_file_or_folder</span><span class="op">(</span>
   <span class="va">path</span>,
   <span class="va">path_target</span>,
+  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,
   user <span class="op">=</span> <span class="fu">nextcloud_user</span><span class="op">(</span><span class="op">)</span>,
   auth <span class="op">=</span> <span class="fu">nextcloud_auth</span><span class="op">(</span><span class="op">)</span>,
   dbg <span class="op">=</span> <span class="cn">TRUE</span>,
@@ -73,6 +74,8 @@
 <dd><p>path to the file or folder to be moved</p></dd>
 <dt>path_target</dt>
 <dd><p>path to the target file or folder to be moved to</p></dd>
+<dt>overwrite</dt>
+<dd><p>overwrite if file/folder is already existing (default: FALSE)</p></dd>
 <dt>user</dt>
 <dd><p>user name, by default taken from the environment variable
 "NEXTCLOUD_USER".</p></dd>
