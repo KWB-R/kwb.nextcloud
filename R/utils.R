@@ -135,9 +135,11 @@ nextcloud_auth <- function(
 }
 
 # path_to_file_href ------------------------------------------------------------
-path_to_file_href <- function(path = "", user = nextcloud_user())
+path_to_file_href <- function(
+  path = "", user = nextcloud_user(), leading_slash = FALSE
+)
 {
-  file.path(dav_path(leading_slash = FALSE), "files", user, path)
+  file.path(dav_path(leading_slash = leading_slash), "files", user, path)
 }
 
 # remove_leading_slashes -------------------------------------------------------
