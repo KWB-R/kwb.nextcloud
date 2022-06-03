@@ -19,9 +19,16 @@ create_download_dir <- function(pattern)
 }
 
 # dav_path ---------------------------------------------------------------------
-dav_path <- function()
+dav_path <- function(leading_slash = TRUE)
 {
-  "/remote.php/dav"
+  path <- "remote.php/dav"
+
+
+  if (!leading_slash) {
+    return(path)
+  }
+
+  paste0("/", path)
 }
 
 # decode_url -------------------------------------------------------------------
@@ -130,7 +137,7 @@ nextcloud_auth <- function(
 # path_to_file_href ------------------------------------------------------------
 path_to_file_href <- function(path = "", user = nextcloud_user())
 {
-  remove_leading_slashes(file.path(dav_path(), "files", user, path))
+  file.path(dav_path(leading_slash = FALSE), "files", user, path)
 }
 
 # remove_leading_slashes -------------------------------------------------------
