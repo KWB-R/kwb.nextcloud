@@ -12,7 +12,7 @@ nextcloud_request <- function(
   config <- c(auth, if (length(headers)) do.call(httr::add_headers, headers))
 
   verb <- match.arg(verb, c(
-    "GET", "POST", "PROPFIND", "PUT", "DELETE", "MKCOL"
+    "GET", "POST", "PROPFIND", "PUT", "DELETE", "MKCOL", "MOVE"
   ))
 
   as <- match.arg(as, c("response", "raw", "text", "parsed", "content"))
@@ -39,7 +39,11 @@ nextcloud_request <- function(
 
     httr::VERB(verb, url, config)
 
-  } else if (verb == "DELETE") {
+  }  else if (verb == "MOVE") {
+
+    httr::VERB(verb, url, config)
+
+  }  else if (verb == "DELETE") {
 
     if (really) {
 

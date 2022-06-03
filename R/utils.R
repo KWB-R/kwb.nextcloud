@@ -60,7 +60,7 @@ get_file_or_folder_info <- function(
 # href_to_url ------------------------------------------------------------------
 href_to_url <- function(href)
 {
-  file.path(nextcloud_url(), href)
+  file.path(nextcloud_url(), remove_leading_slashes(href))
 }
 
 # indent -----------------------------------------------------------------------
@@ -130,7 +130,7 @@ nextcloud_auth <- function(
 # path_to_file_href ------------------------------------------------------------
 path_to_file_href <- function(path = "", user = nextcloud_user())
 {
-  file.path(dav_path(), "files", user, path)
+  remove_leading_slashes(file.path(dav_path(), "files", user, path))
 }
 
 # remove_leading_slashes -------------------------------------------------------
