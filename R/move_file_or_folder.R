@@ -4,6 +4,7 @@
 #'
 #' @param path path to the file or folder to be moved
 #' @param path_target path to the target file or folder to be moved to
+#' @param overwrite overwrite if file/folder is already existing (default: FALSE)
 #' @param \dots further arguments passed to
 #'   \code{kwb.nextcloud:::nextcloud_request}
 #' @param dbg print debug messages (default: TRUE)
@@ -12,6 +13,7 @@
 #' @importFrom kwb.utils catAndRun
 move_file_or_folder <- function(path,
                                 path_target,
+                                overwrite = FALSE,
                                 user = nextcloud_user(),
                                 auth = nextcloud_auth(),
                                 dbg = TRUE,
@@ -27,7 +29,10 @@ move_file_or_folder <- function(path,
   response <- nextcloud_request(href,
                                 "MOVE",
                                 auth = auth,
-                                headers = list(Destination = url_target),
+                                headers = list(Destination = url_target,
+                                               Overwrite = ifelse(overwrite,
+                                                                  "T",
+                                                                  "F")),
                                 ...)},
   dbg = dbg
   )

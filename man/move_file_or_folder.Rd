@@ -7,6 +7,7 @@
 move_file_or_folder(
   path,
   path_target,
+  overwrite = FALSE,
   user = nextcloud_user(),
   auth = nextcloud_auth(),
   dbg = TRUE,
@@ -17,6 +18,8 @@ move_file_or_folder(
 \item{path}{path to the file or folder to be moved}
 
 \item{path_target}{path to the target file or folder to be moved to}
+
+\item{overwrite}{overwrite if file/folder is already existing (default: FALSE)}
 
 \item{user}{user name, by default taken from the environment variable
 "NEXTCLOUD_USER".}
