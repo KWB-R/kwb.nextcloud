@@ -19,7 +19,8 @@ move_file_or_folder(
 
 \item{path_target}{path to the target file or folder to be moved to}
 
-\item{overwrite}{overwrite if file/folder is already existing (default: FALSE)}
+\item{overwrite}{whether to overwrite the file or folder in case that the
+file or folder already exists (default: FALSE)}
 
 \item{user}{user name, by default taken from the environment variable
 "NEXTCLOUD_USER".}
