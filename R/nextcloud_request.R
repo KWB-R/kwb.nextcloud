@@ -12,7 +12,7 @@ nextcloud_request <- function(
   config <- c(auth, if (length(headers)) do.call(httr::add_headers, headers))
 
   verb <- match.arg(verb, c(
-    "GET", "POST", "PROPFIND", "PUT", "DELETE", "MKCOL", "MOVE"
+    "GET", "POST", "PROPFIND", "MKCOL", "MOVE", "PUT", "DELETE"
   ))
 
   as <- match.arg(as, c("response", "raw", "text", "parsed", "content"))
@@ -27,7 +27,7 @@ nextcloud_request <- function(
 
     httr::POST(url, config, body = body)
 
-  } else if (verb == "PROPFIND") {
+  } else if (verb %in% c("PROPFIND", "MKCOL", "MOVE")) {
 
     httr::VERB(verb, url, config, body = body)
 
@@ -35,15 +35,7 @@ nextcloud_request <- function(
 
     httr::PUT(url, config, body = body)
 
-  }  else if (verb == "MKCOL") {
-
-    httr::VERB(verb, url, config)
-
-  }  else if (verb == "MOVE") {
-
-    httr::VERB(verb, url, config)
-
-  }  else if (verb == "DELETE") {
+  } else if (verb == "DELETE") {
 
     if (really) {
 
@@ -51,7 +43,7 @@ nextcloud_request <- function(
 
     } else {
 
-      message("I will not really delete ", url, "!")
+      message("I will not really delete ", url, " unless 'really' is set to TRUE.")
       return()
     }
   }
