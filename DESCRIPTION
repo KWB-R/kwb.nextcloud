@@ -1,22 +1,16 @@
 Package: kwb.nextcloud
 Title: R Package for Accessing Nextcloud Using WebDAV API
 Version: 0.2.0
-Authors@R: 
-    c(person(given = "Michael",
-             family = "Rustler",
-             role = c("aut", "cre"),
-             email = "michael.rustler@kompetenz-wasser.de",
-             comment = c(ORCID = "0000-0003-0647-7726")),
-      person(given = "Hauke",
-             family = "Sonnenberg",
-             role = "aut",
-             email = "hauke.sonnenberg@kompetenz-wasser.de",
-             comment = c(ORCID = "0000-0003-0647-7726")),
-      person(given = "ULTIMATE", role = "fnd"),
-      person(given = "Kompetenzzentrum Wasser Berlin gGmbH (KWB)",
-             role = "cph"))
-Description: R package to access file infos or download data
-    from an Nextcloud instance using the WebDav API
+Authors@R: c(
+    person("Michael", "Rustler", , "michael.rustler@kompetenz-wasser.de", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-0647-7726")),
+    person("Hauke", "Sonnenberg", , "hauke.sonnenberg@kompetenz-wasser.de", role = "aut",
+           comment = c(ORCID = "0000-0003-0647-7726")),
+    person("ULTIMATE", role = "fnd"),
+    person("Kompetenzzentrum Wasser Berlin gGmbH (KWB)", role = "cph")
+  )
+Description: R package to access file infos or download data from an
+    Nextcloud instance using the WebDav API
     (https://docs.nextcloud.com/server/17/developer_manual/client_apis/WebDAV/).
 License: MIT + file LICENSE
 URL: https://github.com/KWB-R/kwb.nextcloud
