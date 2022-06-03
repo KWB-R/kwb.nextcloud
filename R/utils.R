@@ -18,9 +18,13 @@ create_download_dir <- function(pattern)
   ))
 }
 
-# dav_path ---------------------------------------------------------------------
-dav_path <- function(leading_slash = TRUE)
+# webdav_base_url --------------------------------------------------------------
+webdav_base_url <- function(leading_slash = TRUE)
 {
+  # The base url for all WebDAV operations for a Nextcloud instance is
+  # /remote.php/dav.
+  # https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/basic.html
+
   path <- "remote.php/dav"
 
 
@@ -49,7 +53,7 @@ exclude_directories <- function(file_info)
 # fileid_to_version_href -------------------------------------------------------
 fileid_to_version_href <- function(fileid = "", user = nextcloud_user())
 {
-  file.path(dav_path(), "versions", user, "versions", fileid)
+  file.path(webdav_base_url(), "versions", user, "versions", fileid)
 }
 
 # get_file_or_folder_info ------------------------------------------------------
@@ -139,7 +143,7 @@ path_to_file_href <- function(
   path = "", user = nextcloud_user(), leading_slash = FALSE
 )
 {
-  file.path(dav_path(leading_slash = leading_slash), "files", user, path)
+  file.path(webdav_base_url(leading_slash = leading_slash), "files", user, path)
 }
 
 # remove_leading_slashes -------------------------------------------------------

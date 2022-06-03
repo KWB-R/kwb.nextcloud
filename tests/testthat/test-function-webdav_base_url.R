@@ -5,9 +5,8 @@
 # so that real cases are tested. You should then delete this comment.
 #
 
-test_that("dav_path() works", {
+test_that("webdav_base_url() works", {
 
-  expect_identical(kwb.nextcloud:::dav_path(), "/remote.php/dav")
+  expect_identical(kwb.nextcloud:::webdav_base_url(), "/remote.php/dav")
 
 })
-
