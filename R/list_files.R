@@ -69,7 +69,7 @@ list_files <- function(
 
 # list_cloud_files -------------------------------------------------------------
 
-#' @importFrom kwb.utils selectColumns
+#' @importFrom kwb.utils removeLeadingSlashes selectColumns
 #' @keywords internal
 list_cloud_files <- function(
   path = character(),
@@ -90,7 +90,7 @@ list_cloud_files <- function(
     return(list_cloud_files(path = "", full_info)[FALSE, ])
   }
 
-  path <- remove_leading_slashes(path)
+  path <- kwb.utils::removeLeadingSlashes(path)
 
   message("Listing ", path)
 

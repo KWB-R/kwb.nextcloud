@@ -1,12 +1,3 @@
-# create_directories -----------------------------------------------------------
-
-#' @importFrom kwb.utils createDirectory
-#' @keywords internal
-create_directories <- function(paths)
-{
-  unlist(lapply(unique(paths), kwb.utils::createDirectory))
-}
-
 # create_download_dir ----------------------------------------------------------
 
 #' @importFrom kwb.utils createDirectory
@@ -69,19 +60,11 @@ get_file_or_folder_info <- function(
 }
 
 # href_to_url ------------------------------------------------------------------
+
+#' @importFrom kwb.utils removeLeadingSlashes
 href_to_url <- function(href)
 {
-  file.path(nextcloud_url(), remove_leading_slashes(href))
-}
-
-# indent -----------------------------------------------------------------------
-indent <- function(x, depth = 0L)
-{
-  if (depth > 0L) {
-    paste0(kwb.utils::space(depth), x)
-  } else {
-    x
-  }
+  file.path(nextcloud_url(), kwb.utils::removeLeadingSlashes(href))
 }
 
 # is_cloud_directory -----------------------------------------------------------
@@ -106,12 +89,6 @@ is_cloud_directory <- function(
 is_directory <- function(file)
 {
   file.info(kwb.utils::safePath(file))[, "isdir"]
-}
-
-# is_try_error -----------------------------------------------------------------
-is_try_error <- function(x)
-{
-  inherits(x, "try-error")
 }
 
 # lookup_fileid ----------------------------------------------------------------
@@ -144,12 +121,6 @@ path_to_file_href <- function(
 )
 {
   file.path(webdav_base_url(leading_slash = leading_slash), "files", user, path)
-}
-
-# remove_leading_slashes -------------------------------------------------------
-remove_leading_slashes <- function(x)
-{
-  gsub("^/+", "", x)
 }
 
 # rename_properties ------------------------------------------------------------
@@ -186,10 +157,4 @@ to_posix <- function(x)
   Sys.setlocale("LC_TIME", "C")
 
   as.POSIXct(x, format = "%a, %d %b %Y %H:%M:%S GMT", tz = "GMT")
-}
-
-# unique_dirnames --------------------------------------------------------------
-unique_dirnames <- function(x)
-{
-  setdiff(unique(dirname(x)), ".")
 }

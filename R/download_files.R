@@ -12,7 +12,7 @@
 #'   \code{kwb.nextcloud:::nextcloud_user}
 #' @param auth authentication as returned by
 #'   \code{kwb.nextcloud:::nextcloud_user}
-#' @importFrom kwb.utils defaultIfNULL
+#' @importFrom kwb.utils createDirectories defaultIfNULL uniqueDirnames
 #' @importFrom kwb.file remove_common_root
 #' @export
 #'
@@ -47,7 +47,9 @@ download_files <- function(
   target_paths <- kwb.file::remove_common_root(paths_decoded)
 
   # Create required target folders
-  create_directories(file.path(target_dir, unique_dirnames(target_paths)))
+  kwb.utils::createDirectories(
+    file.path(target_dir, kwb.utils::uniqueDirnames(target_paths))
+  )
 
   # Create the full paths to the target files
   target_files <- file.path(target_dir, target_paths)
@@ -82,6 +84,7 @@ download_from_href <- function(href, target_file, auth = nextcloud_auth())
 # write_content_to_file --------------------------------------------------------
 
 #' @importFrom httr content headers
+#' @importFrom kwb.utils isTryError
 #' @keywords internal
 write_content_to_file <- function(response, target_file)
 {
@@ -89,7 +92,7 @@ write_content_to_file <- function(response, target_file)
 
   result <- try(writeBin(content, target_file))
 
-  if (is_try_error(result)) {
+  if (kwb.utils::isTryError(result)) {
 
     stop(
       "Could not write the response data with writeBin(). ",
