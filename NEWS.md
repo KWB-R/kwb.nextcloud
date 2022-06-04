@@ -1,3 +1,8 @@
+# [kwb.nextcloud 0.3.0](https://github.com/KWB-R/kwb.nextcloud/releases/tag/v0.3.0) <small>2021-06-03</small>
+
+* Add `move_file_or_folder()`: see [Moving files and folders](https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/basic.html#moving-files-and-folders-rfc4918)
+* Fix to remove leading slashes in internal function `path_to_file_href()` 
+
 # [kwb.nextcloud 0.2.0](https://github.com/KWB-R/kwb.nextcloud/releases/tag/v0.2.0) <small>2021-04-01</small>
 
 * Fix bug in list_files(): endless recursion (#32)

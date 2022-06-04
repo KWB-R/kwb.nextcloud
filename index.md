@@ -3,6 +3,7 @@
 [![codecov](https://codecov.io/github/KWB-R/kwb.nextcloud/branch/master/graphs/badge.svg)](https://codecov.io/github/KWB-R/kwb.nextcloud)
 [![Project Status](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/kwb.nextcloud)]()
+[![R-Universe_Status_Badge](https://kwb-r.r-universe.dev/badges/kwb.nextcloud)](https://kwb-r.r-universe.dev/)
 
 R package to access file infos or download data
 from an Nextcloud instance using the WebDav API
@@ -10,20 +11,17 @@ from an Nextcloud instance using the WebDav API
 
 ## Installation
 
-For details on how to install KWB-R packages checkout our [installation tutorial](https://kwb-r.github.io/kwb.pkgbuild/articles/install.html).
+For installing the latest release of this R package run the following code below:
 
 ```r
-### Optionally: specify GitHub Personal Access Token (GITHUB_PAT)
-### See here why this might be important for you:
-### https://kwb-r.github.io/kwb.pkgbuild/articles/install.html#set-your-github_pat
+# Enable repository from kwb-r
+options(repos = c(
+  kwbr = 'https://kwb-r.r-universe.dev',
+  CRAN = 'https://cloud.r-project.org'))
+  
+# Download and install kwb.nextcloud in R
+install.packages('kwb.nextcloud')
 
-# Sys.setenv(GITHUB_PAT = "mysecret_access_token")
-
-# Install package "remotes" from CRAN
-if (! require("remotes")) {
-  install.packages("remotes", repos = "https://cloud.r-project.org")
-}
-
-# Install KWB package 'kwb.nextcloud' from GitHub
-remotes::install_github("KWB-R/kwb.nextcloud")
+# Browse the kwb.nextcloud manual pages
+help(package = 'kwb.nextcloud')
 ```
