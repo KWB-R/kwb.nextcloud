@@ -33,6 +33,9 @@ file or folder already exists (default: FALSE)}
 \item{\dots}{further arguments passed to
 \code{kwb.nextcloud:::nextcloud_request}}
 }
+\value{
+return path_target of moved file/folder
+}
 \description{
 Move a File or Folder on the Cloud
 }

@@ -9,6 +9,7 @@
 #' @param \dots further arguments passed to
 #'   \code{kwb.nextcloud:::nextcloud_request}
 #' @param dbg print debug messages (default: TRUE)
+#' @return return path_target of moved file/folder
 #' @inheritParams list_files
 #' @export
 #' @importFrom kwb.utils catAndRun
@@ -41,5 +42,5 @@ move_file_or_folder <- function(
     }
   )
 
-  # What should the function return?
+  path_target
 }
