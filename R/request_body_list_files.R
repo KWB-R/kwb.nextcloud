@@ -127,33 +127,34 @@ attributes_propfind <- function(owncloud = TRUE, nextcloud = TRUE)
 }
 
 # element_xml ------------------------------------------------------------------
+#' @importFrom kwb.utils indent
 element_xml <- function(x, ..., attributes = list(), depth = 0L)
 {
   strings <- do.call(c, args = c(
     list(tag_xml(x, attributes, close = FALSE)),
-    lapply(list(...), indent, 1L),
+    lapply(list(...), kwb.utils::indent, 1L),
     list(tag_xml(x, close = 2L))
   ))
 
-  indent(strings, depth)
+  kwb.utils::indent(strings, depth)
 }
 
 # tag_xml ----------------------------------------------------------------------
+
+#' @importFrom kwb.utils indent
 tag_xml <- function(x, attributes = NULL, close = TRUE, depth = 0L)
 {
   # Closed must be FALSE if attributes are given
   stopifnot(is.null(attributes) || isFALSE(close))
 
-  string <- paste0(
+  kwb.utils::indent(depth = depth, paste0(
     "<",
     if (close == 2L) "/",
     x,
     if (length(attributes)) paste0(" ", key_value(.list = attributes)),
     if (close == 1L) " /",
     ">"
-  )
-
-  indent(string, depth)
+  ))
 }
 
 # element_prop -----------------------------------------------------------------
