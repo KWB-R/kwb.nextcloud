@@ -2,11 +2,12 @@
 
 #' @importFrom kwb.utils createDirectory
 #' @keywords internal
-create_download_dir <- function(pattern)
+create_download_dir <- function(pattern, dbg = TRUE)
 {
-  kwb.utils::createDirectory(file.path(
-    "~/../Downloads", basename(tempfile(pattern = pattern))
-  ))
+  kwb.utils::createDirectory(
+    file.path("~/../Downloads", basename(tempfile(pattern = pattern))),
+    dbg = dbg
+  )
 }
 
 # webdav_base_url --------------------------------------------------------------
