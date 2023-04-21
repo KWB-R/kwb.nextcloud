@@ -78,7 +78,8 @@ is_cloud_directory <- function(
     full_info = TRUE,
     user = user,
     auth = auth,
-    parent_only = TRUE
+    parent_only = TRUE,
+    silent = TRUE
   )
 
   stopifnot(nrow(prop_info) == 1L)
