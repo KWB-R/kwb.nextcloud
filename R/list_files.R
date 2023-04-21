@@ -86,7 +86,7 @@ list_cloud_files <- function(
   if (length(path) == 0L) {
 
     # Return an empty result data frame as a template
-    return(list_cloud_files(path = "", full_info)[FALSE, ])
+    return(list_cloud_files(path = "", full_info, silent = TRUE)[FALSE, ])
   }
 
   path <- kwb.utils::removeLeadingSlashes(path)
