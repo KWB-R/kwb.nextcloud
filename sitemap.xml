@@ -40,6 +40,9 @@
     <loc>https://kwb-r.github.io/kwb.nextcloud/reference/download_files.html</loc>
   </url>
   <url>
+    <loc>https://kwb-r.github.io/kwb.nextcloud/reference/file_exists.html</loc>
+  </url>
+  <url>
     <loc>https://kwb-r.github.io/kwb.nextcloud/reference/get_version_info.html</loc>
   </url>
   <url>
@@ -53,6 +56,9 @@
   </url>
   <url>
     <loc>https://kwb-r.github.io/kwb.nextcloud/reference/move_file_or_folder.html</loc>
+  </url>
+  <url>
+    <loc>https://kwb-r.github.io/kwb.nextcloud/reference/path_to_file_href.html</loc>
   </url>
   <url>
     <loc>https://kwb-r.github.io/kwb.nextcloud/reference/upload_file.html</loc>
