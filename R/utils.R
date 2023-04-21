@@ -117,6 +117,14 @@ nextcloud_auth <- function(
 }
 
 # path_to_file_href ------------------------------------------------------------
+
+#' Convert Path to href as Required for Download
+#'
+#' @param path path to file on Nextcloud server
+#' @param user name of Nextcloud user, default:
+#'   \code{kwb.nextcloud:::nextcloud_user()}
+#' @param leading_slash should the returned href start with a slash?
+#' @export
 path_to_file_href <- function(
   path = "", user = nextcloud_user(), leading_slash = FALSE
 )
