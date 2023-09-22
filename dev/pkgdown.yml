@@ -1,7 +1,10 @@
-pandoc: 2.7.3
-pkgdown: 1.5.1
+pandoc: 2.19.2
+pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   Tutorial: Tutorial.html
-last_built: 2020-06-16T09:15Z
+last_built: 2023-09-22T15:30Z
+urls:
+  reference: https://kwb-r.github.io/kwb.nextcloud/reference
+  article: https://kwb-r.github.io/kwb.nextcloud/articles
 
