@@ -40,15 +40,12 @@ get_version_info <- function(
 
 # get_one_version_info ---------------------------------------------------------
 
-#' @importFrom kwb.utils orderBy selectColumns
+#' @importFrom kwb.utils isTryError orderBy selectColumns
 #' @keywords internal
 get_one_version_info <- function(
   fileid, ignore = NULL, user = nextcloud_user(), auth = nextcloud_auth()
 )
 {
-  # Shortcut
-  pull <- kwb.utils::selectColumns
-
   href <- fileid_to_version_href(fileid, user)
 
   result <- try({
@@ -59,7 +56,7 @@ get_one_version_info <- function(
 
     info <- parse_xml_content(content)
 
-    info <- info[pull(info, "resourcetype") != "list()", ]
+    info <- info[kwb.utils::selectColumns(info, "resourcetype") != "list()", ]
 
     if (! is.null(x <- info$getlastmodified)) {
 
@@ -83,7 +80,7 @@ get_one_version_info <- function(
     )
   })
 
-  if (is_try_error(result)) {
+  if (kwb.utils::isTryError(result)) {
     return(NULL)
   }
 

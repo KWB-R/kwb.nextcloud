@@ -39,7 +39,7 @@ default \code{max_depth} is \code{NA} meaning that the function behaves
 "fully recursive".}
 
 \item{\dots}{further arguments passed to
-\code{\link[kwb.utils]{listToDepth}}.}
+\code{kwb.nextcloud:::list_cloud_files}, such as \code{silent = TRUE}}
 }
 \value{
 vector of character or data frame, each with attribute "root" being

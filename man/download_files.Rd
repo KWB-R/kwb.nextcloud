@@ -6,10 +6,11 @@
 \usage{
 download_files(
   hrefs = NULL,
-  target_dir = create_download_dir("nextcloud_"),
+  target_dir = create_download_dir("nextcloud_", dbg = dbg),
   paths = NULL,
   user = nextcloud_user(),
-  auth = nextcloud_auth()
+  auth = nextcloud_auth(),
+  dbg = TRUE
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ can be given in this argument.}
 
 \item{auth}{authentication as returned by
 \code{kwb.nextcloud:::nextcloud_user}}
+
+\item{dbg}{logical indicating whether or not to show debug messages}
 }
 \description{
 Download Files from Cloud
