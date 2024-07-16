@@ -124,8 +124,7 @@ path_to_file_href <- function(
 )
 {
   base_url <- webdav_base_url(leading_slash = leading_slash)
-  href <- file.path(base_url, "files", user, path)
-  utils::URLencode(href)
+  file.path(base_url, "files", utils::URLencode(user), path)
 }
 
 # rename_properties ------------------------------------------------------------
