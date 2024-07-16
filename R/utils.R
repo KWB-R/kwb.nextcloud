@@ -130,7 +130,9 @@ path_to_file_href <- function(
   path = "", user = nextcloud_user(), leading_slash = FALSE
 )
 {
-  file.path(webdav_base_url(leading_slash = leading_slash), "files", user, path)
+  base_url <- webdav_base_url(leading_slash = leading_slash)
+  href <- file.path(base_url, "files", user, path)
+  utils::URLencode(href)
 }
 
 # rename_properties ------------------------------------------------------------
