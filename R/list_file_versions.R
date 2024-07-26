@@ -31,7 +31,7 @@ list_file_versions <- function(path, pattern = NULL, ...)
 get_file_versions <- function(file_info)
 {
   # Remove information on directories
-  file_info <- file_info[!kwb.utils::selectColumns(file_info, "is_dir"), ]
+  file_info <- file_info[!kwb.utils::selectColumns(file_info, "isdir"), ]
 
   # Get version information for the remaining files
   file_ids <- kwb.utils::selectColumns(file_info, "fileid")
