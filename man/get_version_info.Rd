@@ -7,7 +7,8 @@
 get_version_info(
   file_ids,
   user = nextcloud_user(),
-  ignore = "^(status|quota|getcontent|resource)"
+  ignore = "^(status|quota|getcontent|resource)",
+  dbg = TRUE
 )
 }
 \arguments{
@@ -18,6 +19,8 @@ column \code{fileid}) by \code{\link{list_files}}}
 
 \item{ignore}{pattern matching columns to be excluded from the result. Set
 to \code{NULL} to see what columns are available.}
+
+\item{dbg}{logical indicating whether or not to print debug messages}
 }
 \value{
 data frame with one row per version. There seems to be only an entry
