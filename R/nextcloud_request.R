@@ -20,57 +20,37 @@ nextcloud_request <- function(
   url <- href_to_url(href)
 
   response <- if (verb == "GET") {
-
     httr::GET(url, config)
-
   } else if (verb == "POST") {
-
     httr::POST(url, config, body = body)
-
   } else if (verb %in% c("PROPFIND", "MKCOL", "MOVE")) {
-
     httr::VERB(verb, url, config, body = body)
-
   } else if (verb == "PUT") {
-
     httr::PUT(url, config, body = body)
-
   } else if (verb == "DELETE") {
-
     if (really) {
-
       httr::DELETE(url, config)
-
     } else {
-
       message("I will not really delete ", url, " unless 'really' is set to TRUE.")
       return()
     }
   }
 
   if (httr::http_error(response)) {
-
     xml <- httr::content(response)
-
-    find_text <- function(x) xml2::xml_text(xml2::xml_find_all(xml, x))
-
     elements <- c("exception", "message")
-
-    xpaths <- stats::setNames(paste0("/d:error/s:", elements), elements)
-
-    values <- lapply(xpaths, find_text)
-
+    xpaths <- paste0("/d:error/s:", elements)
+    values <- lapply(stats::setNames(xpaths, elements), function(xpath) {
+      xml2::xml_text(xml2::xml_find_all(xml, xpath))
+    })
     stop(call. = FALSE, sprintf(
       "\nException: %s\nMessage: %s", values$exception, values$message
     ))
   }
 
   if (as == "response") {
-
-    response
-
-  } else {
-
-    httr::content(response, as = as)
+    return(response)
   }
+
+  httr::content(response, as = as)
 }

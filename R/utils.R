@@ -17,14 +17,7 @@ webdav_base_url <- function(leading_slash = TRUE)
   # /remote.php/dav.
   # https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/basic.html
 
-  path <- "remote.php/dav"
-
-
-  if (!leading_slash) {
-    return(path)
-  }
-
-  paste0("/", path)
+  paste0(if (leading_slash) "/", "remote.php/dav")
 }
 
 # decode_url -------------------------------------------------------------------
@@ -130,7 +123,8 @@ path_to_file_href <- function(
   path = "", user = nextcloud_user(), leading_slash = FALSE
 )
 {
-  file.path(webdav_base_url(leading_slash = leading_slash), "files", user, path)
+  base_url <- webdav_base_url(leading_slash = leading_slash)
+  file.path(base_url, "files", utils::URLencode(user), path)
 }
 
 # rename_properties ------------------------------------------------------------
