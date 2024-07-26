@@ -46,7 +46,8 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_version_info</span><span class="op">(</span></span>
 <span>  <span class="va">file_ids</span>,</span>
 <span>  user <span class="op">=</span> <span class="fu">nextcloud_user</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  ignore <span class="op">=</span> <span class="st">"^(status|quota|getcontent|resource)"</span></span>
+<span>  ignore <span class="op">=</span> <span class="st">"^(status|quota|getcontent|resource)"</span>,</span>
+<span>  dbg <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -66,6 +67,10 @@ column <code>fileid</code>) by <code><a href="list_files.html">list_files</a></c
 <dt id="arg-ignore">ignore<a class="anchor" aria-label="anchor" href="#arg-ignore"></a></dt>
 <dd><p>pattern matching columns to be excluded from the result. Set
 to <code>NULL</code> to see what columns are available.</p></dd>
+
+
+<dt id="arg-dbg">dbg<a class="anchor" aria-label="anchor" href="#arg-dbg"></a></dt>
+<dd><p>logical indicating whether or not to print debug messages</p></dd>
 
 </dl></div>
     <div class="section level2">
