@@ -2,7 +2,7 @@
 % Please edit documentation in R/list_file_versions.R
 \name{list_file_versions}
 \alias{list_file_versions}
-\title{List the Partner's File Versions (Except Current)}
+\title{Deprecated: List File Versions}
 \usage{
 list_file_versions(path, pattern = NULL, ...)
 }
@@ -16,5 +16,5 @@ pattern are considered.}
 \code{recursive}, \code{max_depth}}
 }
 \description{
-List the Partner's File Versions (Except Current)
+Pleas use \code{\link{get_file_versions}} instead.
 }

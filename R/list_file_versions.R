@@ -1,6 +1,8 @@
 # list_file_versions -----------------------------------------------------------
 
-#' List the Partner's File Versions (Except Current)
+#' Deprecated: List File Versions
+#'
+#' Pleas use \code{\link{get_file_versions}} instead.
 #'
 #' @param path relative path to folder of which file versions are to be listed
 #' @param pattern optional. If specified, only files with names matching the
