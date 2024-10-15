@@ -1,3 +1,13 @@
+# [kwb.nextcloud 0.4.0](https://github.com/KWB-R/kwb.nextcloud/releases/tag/v0.4.0) <small>2024-10-15</small>
+
+* Add `file_exists()`
+* Add `get_file_versions()`
+* Fix bug in `path_to_file_href()` that occurred when a user name contained 
+  spaces. Document and export this function.
+* `download_files()`: Add argument `dbg`
+* `get_version_info()`: Add argument `dbg`
+* Deprecate `list_file_versions()`
+
 # [kwb.nextcloud 0.3.0](https://github.com/KWB-R/kwb.nextcloud/releases/tag/v0.3.0) <small>2021-06-03</small>
 
 * Add `move_file_or_folder()`: see [Moving files and folders](https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/basic.html#moving-files-and-folders-rfc4918)

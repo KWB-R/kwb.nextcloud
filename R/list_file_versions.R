@@ -1,6 +1,8 @@
 # list_file_versions -----------------------------------------------------------
 
-#' List the Partner's File Versions (Except Current)
+#' Deprecated: List File Versions
+#'
+#' Pleas use \code{\link{get_file_versions}} instead.
 #'
 #' @param path relative path to folder of which file versions are to be listed
 #' @param pattern optional. If specified, only files with names matching the
@@ -11,20 +13,8 @@
 #'
 list_file_versions <- function(path, pattern = NULL, ...)
 {
-  file_info <- kwb.nextcloud::list_files(path, pattern, full_info = TRUE, ...)
+  kwb.utils::warningDeprecated("list_file_versions", "get_file_versions")
 
-  version_info <- kwb.nextcloud::get_version_info(file_info$fileid)
-
-  columns_x <- c("fileid", "file", "lastmodified", "etag")
-  columns_y <- c("fileid", "version", "href")
-
-  result <- merge(
-    kwb.utils::selectColumns(file_info, columns_x),
-    kwb.utils::selectColumns(version_info, columns_y),
-    by = "fileid"
-  )
-
-  kwb.utils::moveColumnsToFront(result, columns = c(
-    "fileid", "file", "version"
-  ))
+  file_info <- list_files(path, pattern, full_info = TRUE, ...)
+  get_file_versions(file_info)
 }

@@ -12,16 +12,18 @@
 #'   \code{kwb.nextcloud:::nextcloud_user}
 #' @param auth authentication as returned by
 #'   \code{kwb.nextcloud:::nextcloud_user}
-#' @importFrom kwb.utils defaultIfNULL
+#' @param dbg logical indicating whether or not to show debug messages
+#' @importFrom kwb.utils createDirectories defaultIfNULL uniqueDirnames
 #' @importFrom kwb.file remove_common_root
 #' @export
 #'
 download_files <- function(
   hrefs = NULL,
-  target_dir = create_download_dir("nextcloud_"),
+  target_dir = create_download_dir("nextcloud_", dbg = dbg),
   paths = NULL,
   user = nextcloud_user(),
-  auth = nextcloud_auth()
+  auth = nextcloud_auth(),
+  dbg = TRUE
 )
 {
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
@@ -44,10 +46,13 @@ download_files <- function(
   }
 
   # Keep only the necessary tree structure
-  target_paths <- kwb.file::remove_common_root(paths_decoded)
+  target_paths <- kwb.file::remove_common_root(paths_decoded, dbg = FALSE)
 
   # Create required target folders
-  create_directories(file.path(target_dir, unique_dirnames(target_paths)))
+  kwb.utils::createDirectories(
+    file.path(target_dir, kwb.utils::uniqueDirnames(target_paths)),
+    dbg = dbg
+  )
 
   # Create the full paths to the target files
   target_files <- file.path(target_dir, target_paths)
@@ -56,7 +61,7 @@ download_files <- function(
     FUN = download_from_href,
     hrefs,
     target_files,
-    MoreArgs = list(auth = auth),
+    MoreArgs = list(auth = auth, dbg = dbg),
     SIMPLIFY = FALSE,
     USE.NAMES = FALSE
   ))
@@ -66,12 +71,17 @@ download_files <- function(
 
 #' @importFrom kwb.utils catAndRun
 #' @keywords internal
-download_from_href <- function(href, target_file, auth = nextcloud_auth())
+download_from_href <- function(
+    href,
+    target_file,
+    auth = nextcloud_auth(),
+    dbg = TRUE
+)
 {
   # Expect the target directory to exist
   stopifnot(file.exists(dirname(target_file)))
 
-  kwb.utils::catAndRun(paste("Downloading", href), {
+  kwb.utils::catAndRun(paste("Downloading", href), dbg = dbg, {
 
     response <- nextcloud_request(href, "GET", auth)
 
@@ -82,6 +92,7 @@ download_from_href <- function(href, target_file, auth = nextcloud_auth())
 # write_content_to_file --------------------------------------------------------
 
 #' @importFrom httr content headers
+#' @importFrom kwb.utils isTryError
 #' @keywords internal
 write_content_to_file <- function(response, target_file)
 {
@@ -89,7 +100,7 @@ write_content_to_file <- function(response, target_file)
 
   result <- try(writeBin(content, target_file))
 
-  if (is_try_error(result)) {
+  if (kwb.utils::isTryError(result)) {
 
     stop(
       "Could not write the response data with writeBin(). ",

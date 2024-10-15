@@ -7,6 +7,7 @@
 #' @param user nextcloud user
 #' @param ignore pattern matching columns to be excluded from the result. Set
 #'   to \code{NULL} to see what columns are available.
+#' @param dbg logical indicating whether or not to print debug messages
 #' @return data frame with one row per version. There seems to be only an entry
 #'   if the corresponding file as more than one version.
 #' @importFrom kwb.utils catAndRun excludeNULL safeRowBindAll
@@ -15,7 +16,8 @@
 get_version_info <- function(
   file_ids,
   user = nextcloud_user(),
-  ignore = "^(status|quota|getcontent|resource)"
+  ignore = "^(status|quota|getcontent|resource)",
+  dbg = TRUE
 )
 {
   #user <- "hsonne"
@@ -24,14 +26,15 @@ get_version_info <- function(
 
     kwb.utils::catAndRun(
       paste("Getting version info for fileid =", fileid),
-      get_one_version_info(fileid, ignore = ignore, user = user)
+      get_one_version_info(fileid, ignore = ignore, user = user),
+      dbg = dbg
     )
   })
 
   results <- kwb.utils::excludeNULL(results, dbg = FALSE)
 
   if (length(results) == 0L) {
-    message("No versions available for given file IDs")
+    message("No versions available for given file IDs.")
     return()
   }
 
@@ -40,18 +43,16 @@ get_version_info <- function(
 
 # get_one_version_info ---------------------------------------------------------
 
-#' @importFrom kwb.utils orderBy selectColumns
+#' @importFrom kwb.utils isTryError orderBy selectColumns
 #' @keywords internal
 get_one_version_info <- function(
-  fileid, ignore = NULL, user = nextcloud_user(), auth = nextcloud_auth()
+  fileid, ignore = NULL, user = nextcloud_user(), auth = nextcloud_auth(),
+  silent = TRUE
 )
 {
-  # Shortcut
-  pull <- kwb.utils::selectColumns
-
   href <- fileid_to_version_href(fileid, user)
 
-  result <- try({
+  result <- try(silent = silent, {
 
     content <- nextcloud_request(
       href, verb = "PROPFIND", auth = auth, body = NULL, as = "parsed"
@@ -59,7 +60,7 @@ get_one_version_info <- function(
 
     info <- parse_xml_content(content)
 
-    info <- info[pull(info, "resourcetype") != "list()", ]
+    info <- info[kwb.utils::selectColumns(info, "resourcetype") != "list()", ]
 
     if (! is.null(x <- info$getlastmodified)) {
 
@@ -83,7 +84,7 @@ get_one_version_info <- function(
     )
   })
 
-  if (is_try_error(result)) {
+  if (kwb.utils::isTryError(result)) {
     return(NULL)
   }
 

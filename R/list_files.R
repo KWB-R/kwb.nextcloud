@@ -18,7 +18,7 @@
 #'   default \code{max_depth} is \code{NA} meaning that the function behaves
 #'   "fully recursive".
 #' @param \dots further arguments passed to
-#'   \code{\link[kwb.utils]{listToDepth}}.
+#'   \code{kwb.nextcloud:::list_cloud_files}, such as \code{silent = TRUE}
 #' @importFrom kwb.utils listToDepth moveColumnsToFront renameColumns
 #' @importFrom kwb.utils selectColumns toLookupList
 #' @export
@@ -55,7 +55,6 @@ list_files <- function(
   result <- if (full_info) {
 
     result <- kwb.utils::moveColumnsToFront(file_info, c("file", "isdir"))
-
     rename_properties(result)
 
   } else {
@@ -63,13 +62,12 @@ list_files <- function(
     kwb.utils::selectColumns(file_info, "file")
   }
 
-
   structure(result, root = path)
 }
 
 # list_cloud_files -------------------------------------------------------------
 
-#' @importFrom kwb.utils selectColumns
+#' @importFrom kwb.utils removeLeadingSlashes selectColumns
 #' @keywords internal
 list_cloud_files <- function(
   path = character(),
@@ -78,7 +76,8 @@ list_cloud_files <- function(
   user = nextcloud_user(),
   auth = nextcloud_auth(),
   priority = 1L,
-  parent_only = FALSE # TRUE -> return only the properties of the parent folder
+  parent_only = FALSE, # TRUE -> return only the properties of the parent folder
+  silent = FALSE
 )
 {
   #kwb.utils::assignPackageObjects("kwb.nextcloud")
@@ -87,12 +86,14 @@ list_cloud_files <- function(
   if (length(path) == 0L) {
 
     # Return an empty result data frame as a template
-    return(list_cloud_files(path = "", full_info)[FALSE, ])
+    return(list_cloud_files(path = "", full_info, silent = TRUE)[FALSE, ])
   }
 
-  path <- remove_leading_slashes(path)
+  path <- kwb.utils::removeLeadingSlashes(path)
 
-  message("Listing ", path)
+  if (!silent) {
+    message("Listing ", path)
+  }
 
   content <- nextcloud_request(
     href = path_to_file_href(path, user),
