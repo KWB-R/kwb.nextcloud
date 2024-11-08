@@ -2,9 +2,7 @@
 request_body_list_files <- function()
 {
   property_strings <- get_property_info(as_data_frame = FALSE)
-
   property_elements <- lapply(property_strings, tag_xml)
-
   request_body(element_propfind(do.call(element_prop, property_elements)))
 }
 
@@ -111,18 +109,22 @@ element_propfind <- function(
   ..., owncloud = TRUE, nextcloud = TRUE, depth = 0L
 )
 {
-  attributes <- attributes_propfind(owncloud, nextcloud)
-
+  attributes <- attributes_cloud_urls(owncloud, nextcloud, opencoll = FALSE)
   element_xml("d:propfind", ..., attributes = attributes, depth = depth)
 }
 
-# attributes_propfind ----------------------------------------------------------
-attributes_propfind <- function(owncloud = TRUE, nextcloud = TRUE)
+# attributes_cloud_urls --------------------------------------------------------
+attributes_cloud_urls <- function(
+    owncloud = TRUE,
+    nextcloud = TRUE,
+    opencoll = TRUE
+)
 {
   c(
     list("xmlns:d" = "DAV:"),
     if (owncloud) list("xmlns:oc" = "http://owncloud.org/ns"),
-    if (nextcloud) list("xmlns:nc" = "http://nextcloud.org/ns")
+    if (nextcloud) list("xmlns:nc" = "http://nextcloud.org/ns"),
+    if (opencoll) list("xmlns:ocs" = "http://open-collaboration-services.org/ns")
   )
 }
 
@@ -137,6 +139,12 @@ element_xml <- function(x, ..., attributes = list(), depth = 0L)
   ))
 
   kwb.utils::indent(strings, depth)
+}
+
+# inline_element_xml -----------------------------------------------------------
+inline_element_xml <- function(name, value)
+{
+  paste0(tag_xml(name, close = FALSE), value, tag_xml(name, close = 2L))
 }
 
 # tag_xml ----------------------------------------------------------------------
@@ -162,4 +170,3 @@ element_prop <- function(..., attributes = NULL, depth = 0L)
 {
   element_xml("d:prop", ..., attributes = attributes, depth = depth)
 }
-
